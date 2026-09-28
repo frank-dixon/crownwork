@@ -77,8 +77,9 @@
 
   function tabClass(active) {
     return [
-      'px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 ease-crown',
+      'px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-colors duration-200 ease-crown',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright',
+      'inline-flex items-center justify-center',
       active
         ? 'bg-sea text-void shadow-sm'
         : 'bg-raised text-soft hover:text-ink hover:bg-line/60 border border-line',
@@ -104,8 +105,9 @@
       const active = btn.getAttribute('data-level') === state.level;
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
       btn.className = [
-        'px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ease-crown',
+        'px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md transition-colors duration-200 ease-crown',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright',
+        'inline-flex flex-1 sm:flex-initial items-center justify-center',
         active ? 'bg-sea text-void' : 'text-soft hover:text-ink',
       ].join(' ');
     });
@@ -183,6 +185,13 @@
 
     if (els.panelClose) {
       try { els.panelClose.focus(); } catch (_) { /* ignore */ }
+    }
+
+    // On phone, bring the detail panel into view after a tap cut
+    if (cut && window.matchMedia && window.matchMedia('(max-width: 1023px)').matches) {
+      try {
+        els.panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (_) { /* ignore */ }
     }
   }
 

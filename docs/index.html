@@ -2,7 +2,7 @@
 <html lang="en" class="bg-void text-ink">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Crownwork — Fruit Tree Pruning Desk</title>
   <meta name="description" content="Interactive fruit-tree pruning desk for apple, peach, and pear. Learn anatomy, cut types, timing, and physiology with Extension-style guidance." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -10,14 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/crownwork.css" />
 </head>
-<body class="min-h-screen bg-bg text-ink font-sans antialiased">
-  <!-- Sticky hub header -->
+<body class="min-h-screen bg-bg text-ink font-sans antialiased overflow-x-hidden">
+  <!-- Sticky hub header (compact on phone so canvas keeps room) -->
   <header class="sticky top-0 z-40 border-b border-line bg-void/95 backdrop-blur-md">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
-      <div class="flex items-center gap-4 min-w-0">
+    <div class="mx-auto max-w-6xl px-3 sm:px-6 flex items-center justify-between h-12 sm:h-14">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
         <a
           href="https://frank-dixon.github.io/"
-          class="text-xs uppercase tracking-wide2 text-mute hover:text-sea transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded"
+          class="text-xs uppercase tracking-wide2 text-mute hover:text-sea transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded py-2 px-1"
         >Hub</a>
         <span class="text-line" aria-hidden="true">/</span>
         <h1 class="font-display font-semibold tracking-brand text-sm sm:text-base text-ink truncate">
@@ -30,13 +30,13 @@
     </div>
   </header>
 
-  <main class="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8">
+  <main class="mx-auto max-w-6xl px-3 sm:px-6 py-4 sm:py-8">
     <!-- Lead -->
-    <section class="mb-6 sm:mb-8">
-      <p class="font-display text-2xl sm:text-3xl font-semibold text-ink tracking-tight max-w-2xl">
+    <section class="mb-4 sm:mb-8">
+      <p class="font-display text-xl sm:text-3xl font-semibold text-ink tracking-tight max-w-2xl">
         A field-guide desk for pruning fruit trees.
       </p>
-      <p class="mt-3 text-lede max-w-3xl leading-relaxed">
+      <p class="mt-2 sm:mt-3 text-sm sm:text-base text-lede max-w-3xl leading-relaxed">
         Crownwork teaches where to cut on apple, peach, and pear—with labeled anatomy, cut types
         (thinning vs heading, renewal, suckers, deadwood, narrow crotches, crossing wood), season timing,
         and what good vs bad cuts look like. Toggle Advanced for auxin, apical dominance, carbohydrate
@@ -45,31 +45,31 @@
       </p>
     </section>
 
-    <!-- Controls -->
-    <section class="flex flex-col gap-4 mb-5" aria-label="Trainer controls">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-        <div>
+    <!-- Controls: stack full-width on phone, large tap targets -->
+    <section class="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-5" aria-label="Trainer controls">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+        <div class="min-w-0 w-full sm:w-auto">
           <span class="block text-xs uppercase tracking-wide2 text-mute mb-1.5">Mode</span>
-          <div id="mode-tabs" class="flex flex-wrap gap-2" role="group" aria-label="Plant mode"></div>
+          <div id="mode-tabs" class="flex flex-wrap gap-2 w-full" role="group" aria-label="Plant mode"></div>
         </div>
-        <div class="sm:ml-auto flex flex-wrap items-end gap-3">
-          <div>
+        <div class="flex flex-col xs:flex-row sm:ml-auto flex-wrap items-stretch sm:items-end gap-3 w-full sm:w-auto">
+          <div class="min-w-0 flex-1 sm:flex-initial">
             <label for="plant-select" class="block text-xs uppercase tracking-wide2 text-mute mb-1.5">Plant</label>
             <select
               id="plant-select"
-              class="bg-raised border border-line text-ink text-sm rounded-lg px-3 py-2 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright min-w-[10rem]"
+              class="w-full bg-raised border border-line text-ink text-base sm:text-sm rounded-lg px-3 py-2.5 min-h-[44px] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright sm:min-w-[10rem]"
             ></select>
           </div>
-          <div>
+          <div class="min-w-0">
             <span class="block text-xs uppercase tracking-wide2 text-mute mb-1.5" id="level-label">Detail</span>
             <div
               id="level-toggle"
-              class="inline-flex p-0.5 rounded-lg bg-raised border border-line shadow-sm"
+              class="inline-flex w-full sm:w-auto p-1 rounded-lg bg-raised border border-line shadow-sm"
               role="group"
               aria-labelledby="level-label"
             >
-              <button type="button" data-level="simple" aria-pressed="true">Simple</button>
-              <button type="button" data-level="advanced" aria-pressed="false">Advanced</button>
+              <button type="button" data-level="simple" aria-pressed="true" class="flex-1 sm:flex-initial">Simple</button>
+              <button type="button" data-level="advanced" aria-pressed="false" class="flex-1 sm:flex-initial">Advanced</button>
             </div>
           </div>
         </div>
@@ -78,39 +78,40 @@
       <p id="plant-habit" class="text-sm text-lede leading-relaxed max-w-3xl hidden"></p>
     </section>
 
-    <!-- Stage: viewport + panel -->
+    <!-- Stage: diagram first, panel stacks under on small screens -->
     <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-5 items-start">
-      <div class="lg:col-span-3">
+      <div class="lg:col-span-3 min-w-0">
         <div class="relative rounded-xl border border-line bg-raised overflow-hidden shadow-paper">
-          <div class="absolute top-3 right-3 z-10 flex flex-wrap gap-2 justify-end">
-            <label class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md bg-void/95 border border-line text-soft cursor-pointer hover:text-ink shadow-sm">
-              <input type="checkbox" id="toggle-anatomy" class="rounded border-line text-sea focus:ring-sea" checked />
+          <!-- Toolbar outside canvas so sticky chrome / overlays do not eat the diagram -->
+          <div class="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-line bg-bg/90">
+            <label class="inline-flex items-center gap-2 text-sm px-3 min-h-[44px] rounded-md bg-void border border-line text-soft cursor-pointer hover:text-ink shadow-sm">
+              <input type="checkbox" id="toggle-anatomy" class="h-5 w-5 rounded border-line text-sea focus:ring-sea" checked />
               Anatomy labels
             </label>
             <button
               type="button"
               id="reset-view"
-              class="text-xs px-2.5 py-1.5 rounded-md bg-void/95 border border-line text-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright shadow-sm"
+              class="text-sm px-3 min-h-[44px] rounded-md bg-void border border-line text-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright shadow-sm"
             >Reset view</button>
           </div>
           <div
             id="plant-viewport"
-            class="w-full aspect-[10/9] sm:aspect-[400/360] bg-void touch-none"
-            aria-label="Plant diagram viewport. Scroll to zoom, drag to pan, activate markers for cut details."
+            class="w-full h-[min(58dvh,90vw)] sm:h-auto sm:aspect-[400/360] bg-void touch-none select-none"
+            aria-label="Plant diagram viewport. Pinch to zoom, drag to pan, tap markers for cut details."
           ></div>
           <p class="px-3 py-2 text-xs text-mute border-t border-line bg-bg/80">
-            Scroll or pinch to zoom. Drag to pan. Tab to cut markers; Enter selects. Escape closes the detail panel.
+            Tap a cut marker for details. Drag to pan, pinch to zoom. Reset view restores the frame. Escape closes the detail panel.
           </p>
         </div>
       </div>
 
-      <aside class="lg:col-span-2" aria-live="polite">
+      <aside class="lg:col-span-2 min-w-0" aria-live="polite">
         <div
           id="cut-panel"
-          class="rounded-xl border border-line bg-raised min-h-[20rem] relative shadow-paper"
+          class="rounded-xl border border-line bg-raised min-h-[16rem] sm:min-h-[20rem] relative shadow-paper max-h-[70dvh] lg:max-h-none overflow-y-auto"
           aria-hidden="true"
         >
-          <div id="cut-panel-empty" class="p-5 sm:p-6">
+          <div id="cut-panel-empty" class="p-4 sm:p-6">
             <h2 class="font-display text-lg font-semibold text-ink">Cut detail</h2>
             <p class="mt-2 text-sm text-lede leading-relaxed">
               Select a labeled marker on the tree to see how to make the cut, why it matters, when to do it,
@@ -125,7 +126,7 @@
             </ul>
           </div>
 
-          <div id="cut-panel-inner" class="hidden p-5 sm:p-6 animate-panel-in">
+          <div id="cut-panel-inner" class="hidden p-4 sm:p-6 animate-panel-in">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <span id="cut-kind"></span>
@@ -134,7 +135,7 @@
               <button
                 type="button"
                 id="cut-panel-close"
-                class="shrink-0 text-mute hover:text-ink text-sm px-2 py-1 rounded-md border border-transparent hover:border-line focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright"
+                class="shrink-0 text-mute hover:text-ink text-sm px-3 min-h-[44px] min-w-[44px] rounded-md border border-line hover:bg-void focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright"
                 aria-label="Close cut detail"
               >Esc ✕</button>
             </div>
@@ -182,7 +183,7 @@
     </section>
 
     <!-- Anatomy key (trees) -->
-    <section id="anatomy-key" class="mt-8 sm:mt-10 rounded-xl border border-line bg-raised p-5 sm:p-6 shadow-paper">
+    <section id="anatomy-key" class="mt-8 sm:mt-10 rounded-xl border border-line bg-raised p-4 sm:p-6 shadow-paper">
       <h2 class="font-display text-lg font-semibold text-ink">Tree anatomy (field guide)</h2>
       <p class="mt-2 text-sm text-soft leading-relaxed max-w-3xl">
         Labels on the diagram match this key. Learn the parts before you cut—fruiting wood and vegetative wood
@@ -212,9 +213,9 @@
   </main>
 
   <footer class="border-t border-line mt-8">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-mute">
+    <div class="mx-auto max-w-6xl px-3 sm:px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-mute">
       <p>Crownwork — part of the Frank Dixon hub.</p>
-      <a href="https://frank-dixon.github.io/" class="text-sea hover:text-sea-bright focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded">frank-dixon.github.io</a>
+      <a href="https://frank-dixon.github.io/" class="text-sea hover:text-sea-bright focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded py-2">frank-dixon.github.io</a>
     </div>
   </footer>
 

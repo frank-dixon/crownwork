@@ -280,6 +280,13 @@
     let pointers = new Map();
     let pinchStartDist = 0;
     let pinchStartScale = 1;
+    let gestureMoved = false;
+    let gestureStartX = 0;
+    let gestureStartY = 0;
+    let pendingCutId = null;
+    let suppressClick = false;
+    const TAP_PX = 12;
+    const HIT_SCREEN_PX = 44;
 
     host.innerHTML = '';
     host.classList.add('touch-none');
@@ -292,7 +299,9 @@
     }, host);
     svg.style.cursor = 'grab';
     svg.style.userSelect = 'none';
+    svg.style.webkitUserSelect = 'none';
     svg.style.touchAction = 'none';
+    svg.setAttribute('touch-action', 'none');
 
     const root = el('g', { class: 'cw-root' }, svg);
     const world = el('g', { class: 'cw-world' }, root);
@@ -310,6 +319,7 @@
 
     function zoomAt(clientX, clientY, nextScale) {
       const rect = svg.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
       const mx = ((clientX - rect.left) / rect.width) * VIEW_W;
       const my = ((clientY - rect.top) / rect.height) * VIEW_H;
       const s2 = clampScale(nextScale);
@@ -320,8 +330,56 @@
       applyTransform();
     }
 
+    function clientToWorld(clientX, clientY) {
+      const rect = svg.getBoundingClientRect();
+      if (!rect.width || !rect.height) return { x: 0, y: 0 };
+      const vx = ((clientX - rect.left) / rect.width) * VIEW_W;
+      const vy = ((clientY - rect.top) / rect.height) * VIEW_H;
+      return { x: (vx - tx) / scale, y: (vy - ty) / scale };
+    }
+
+    function hitRadiusWorld() {
+      const rect = svg.getBoundingClientRect();
+      const cssPerWorld = (rect.width / VIEW_W) * scale;
+      if (!cssPerWorld) return 28;
+      return HIT_SCREEN_PX / cssPerWorld;
+    }
+
+    function findNearestCut(worldPt, maxR) {
+      if (!plant || !plant.cuts || !plant.cuts.length) return null;
+      let best = null;
+      let bestD = maxR;
+      for (let i = 0; i < plant.cuts.length; i++) {
+        const c = plant.cuts[i];
+        const d = Math.hypot(c.x - worldPt.x, c.y - worldPt.y);
+        if (d <= bestD) {
+          bestD = d;
+          best = c;
+        }
+      }
+      return best;
+    }
+
     function clearLayer(layer) {
       while (layer.firstChild) layer.removeChild(layer.firstChild);
+    }
+
+    function selectCutObj(cut) {
+      if (!cut) {
+        selectedId = null;
+        renderMarks();
+        onSelect(null);
+        return;
+      }
+      selectedId = cut.id;
+      renderMarks();
+      onSelect(cut);
+      const next = marksLayer.querySelector(`[data-cut-id="${cut.id}"]`);
+      if (next && typeof next.focus === 'function') {
+        try { next.focus({ preventScroll: true }); } catch (_) {
+          try { next.focus(); } catch (__) { /* ignore */ }
+        }
+      }
     }
 
     function renderAnatomy() {
@@ -372,6 +430,7 @@
     function renderMarks() {
       clearLayer(marksLayer);
       if (!plant || !plant.cuts) return;
+      const hitR = Math.max(18, Math.min(32, hitRadiusWorld()));
       plant.cuts.forEach((cut) => {
         const color = KIND_COLORS[cut.kind] || C.cut;
         const g = el('g', {
@@ -379,25 +438,34 @@
           transform: `translate(${cut.x} ${cut.y})`,
         }, marksLayer);
 
-        el('circle', { r: '14', fill: 'transparent', class: 'cw-mark-hit' }, g);
+        // Large invisible hit target (~44px screen when possible)
+        el('circle', {
+          r: String(hitR),
+          fill: 'transparent',
+          class: 'cw-mark-hit',
+          'data-cut-id': cut.id,
+          style: 'pointer-events: all;',
+        }, g);
 
         const ring = el('circle', {
-          r: '9',
+          r: '10',
           fill: color,
-          opacity: '0.22',
+          opacity: '0.25',
           class: 'cw-mark-ring',
+          'pointer-events': 'none',
         }, g);
 
         el('circle', {
-          r: '5',
+          r: '6',
           fill: color,
           stroke: C.paper,
           'stroke-width': '1.5',
           class: 'cw-mark-dot',
+          'pointer-events': 'none',
         }, g);
 
         const btn = el('circle', {
-          r: '11',
+          r: String(Math.max(12, hitR * 0.55)),
           fill: 'transparent',
           stroke: selectedId === cut.id ? C.ink : 'transparent',
           'stroke-width': selectedId === cut.id ? '2' : '0',
@@ -406,46 +474,50 @@
           'aria-label': cut.label,
           'data-cut-id': cut.id,
           class: 'cw-mark-btn focus:outline-none',
+          style: 'pointer-events: all; cursor: pointer;',
         }, g);
 
         if (selectedId === cut.id) {
-          ring.setAttribute('r', '12');
-          ring.setAttribute('opacity', '0.4');
+          ring.setAttribute('r', '13');
+          ring.setAttribute('opacity', '0.45');
           try {
             ring.classList.add('animate-pulse-cut');
           } catch (_) { /* ok */ }
         }
 
-        function select() {
-          selectedId = cut.id;
-          renderMarks();
-          onSelect(cut);
-          const next = marksLayer.querySelector(`[data-cut-id="${cut.id}"]`);
-          if (next && typeof next.focus === 'function') {
-            try { next.focus(); } catch (_) { /* ignore */ }
+        function selectFromEvent(e) {
+          if (e) {
+            e.stopPropagation();
+            e.preventDefault();
           }
+          selectCutObj(cut);
         }
 
         btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          select();
+          if (suppressClick) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          selectFromEvent(e);
         });
         btn.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            select();
+            selectCutObj(cut);
           }
         });
 
+        // Always-visible short label (no hover-only affordance)
         const short = cut.label.split('—')[0].trim();
         const label = el('text', {
-          x: '14',
+          x: '16',
           y: '4',
           fill: C.mute,
           'font-size': '9',
           'font-family': 'Inter, system-ui, sans-serif',
           class: 'cw-mark-label pointer-events-none',
-          opacity: '0.9',
+          opacity: '0.95',
         }, g);
         label.textContent = short;
       });
@@ -470,29 +542,58 @@
       zoomAt(e.clientX, e.clientY, scale * factor);
     }, { passive: false });
 
-    svg.addEventListener('pointerdown', (e) => {
-      if (e.target && e.target.getAttribute && e.target.getAttribute('data-cut-id')) {
-        return;
-      }
+    function onPointerDown(e) {
+      if (e.button != null && e.button !== 0) return;
+      const targetCut = e.target && e.target.getAttribute
+        ? e.target.getAttribute('data-cut-id')
+        : null;
+
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      svg.setPointerCapture(e.pointerId);
+      try { svg.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+
+      gestureMoved = false;
+      gestureStartX = e.clientX;
+      gestureStartY = e.clientY;
+      suppressClick = false;
+
       if (pointers.size === 1) {
-        dragging = true;
+        const worldPt = clientToWorld(e.clientX, e.clientY);
+        const near = targetCut
+          ? (plant && plant.cuts ? plant.cuts.find((c) => c.id === targetCut) : null)
+          : findNearestCut(worldPt, hitRadiusWorld());
+        pendingCutId = near ? near.id : null;
+        dragging = !pendingCutId;
         lastX = e.clientX;
         lastY = e.clientY;
-        svg.style.cursor = 'grabbing';
+        svg.style.cursor = dragging ? 'grabbing' : 'pointer';
       } else if (pointers.size === 2) {
         dragging = false;
+        pendingCutId = null;
         const pts = Array.from(pointers.values());
         pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         pinchStartScale = scale;
       }
-    });
+    }
 
-    svg.addEventListener('pointermove', (e) => {
+    function onPointerMove(e) {
       if (!pointers.has(e.pointerId)) return;
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      const distFromStart = Math.hypot(e.clientX - gestureStartX, e.clientY - gestureStartY);
+      if (distFromStart > TAP_PX) {
+        gestureMoved = true;
+        if (pendingCutId && pointers.size === 1) {
+          // Finger slid off a marker — convert to pan
+          pendingCutId = null;
+          dragging = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          svg.style.cursor = 'grabbing';
+        }
+      }
+
       if (pointers.size === 2) {
+        suppressClick = true;
         const pts = Array.from(pointers.values());
         const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         if (pinchStartDist > 0) {
@@ -501,7 +602,9 @@
           zoomAt(midX, midY, pinchStartScale * (dist / pinchStartDist));
         }
       } else if (dragging && pointers.size === 1) {
+        suppressClick = true;
         const rect = svg.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
         const dx = ((e.clientX - lastX) / rect.width) * VIEW_W;
         const dy = ((e.clientY - lastY) / rect.height) * VIEW_H;
         tx += dx;
@@ -510,33 +613,121 @@
         lastY = e.clientY;
         applyTransform();
       }
-    });
+    }
 
-    function endPointer(e) {
+    function onPointerUp(e) {
+      const wasPending = pendingCutId;
+      const wasMoved = gestureMoved;
       pointers.delete(e.pointerId);
       if (pointers.size < 2) pinchStartDist = 0;
+
       if (pointers.size === 0) {
         dragging = false;
         svg.style.cursor = 'grab';
+        if (wasPending && !wasMoved) {
+          const cut = plant && plant.cuts
+            ? plant.cuts.find((c) => c.id === wasPending)
+            : null;
+          if (cut) {
+            suppressClick = true;
+            selectCutObj(cut);
+            setTimeout(() => { suppressClick = false; }, 0);
+          }
+        } else if (!wasPending && !wasMoved) {
+          // Tap empty canvas — clear selection
+          const worldPt = clientToWorld(e.clientX, e.clientY);
+          const near = findNearestCut(worldPt, hitRadiusWorld());
+          if (near) {
+            suppressClick = true;
+            selectCutObj(near);
+            setTimeout(() => { suppressClick = false; }, 0);
+          } else {
+            suppressClick = true;
+            selectCutObj(null);
+            setTimeout(() => { suppressClick = false; }, 0);
+          }
+        } else if (wasMoved) {
+          suppressClick = true;
+          setTimeout(() => { suppressClick = false; }, 0);
+        }
+        pendingCutId = null;
+        gestureMoved = false;
       }
     }
 
-    svg.addEventListener('pointerup', endPointer);
-    svg.addEventListener('pointercancel', endPointer);
+    svg.addEventListener('pointerdown', onPointerDown);
+    svg.addEventListener('pointermove', onPointerMove);
+    svg.addEventListener('pointerup', onPointerUp);
+    svg.addEventListener('pointercancel', onPointerUp);
 
-    svg.addEventListener('click', (e) => {
-      if (e.target === svg || e.target === root || e.target === world || e.target === plantLayer ||
-          (e.target.closest && e.target.closest('.cw-plant'))) {
-        if (!(e.target.getAttribute && e.target.getAttribute('data-cut-id'))) {
-          const onMark = e.target.closest && e.target.closest('.cw-mark');
-          if (!onMark) {
-            selectedId = null;
-            renderMarks();
-            onSelect(null);
-          }
+    // Touch fallbacks (mirror pointer) for older WebViews without reliable PointerEvents on SVG
+    if (typeof window.PointerEvent === 'undefined') {
+      let touchMap = new Map();
+      svg.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          onPointerDown({
+            pointerId: t.identifier,
+            clientX: t.clientX,
+            clientY: t.clientY,
+            button: 0,
+            target: e.target,
+          });
+          touchMap.set(t.identifier, t);
+        }
+      }, { passive: false });
+      svg.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          onPointerMove({
+            pointerId: t.identifier,
+            clientX: t.clientX,
+            clientY: t.clientY,
+          });
+        }
+      }, { passive: false });
+      function endTouches(e) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          onPointerUp({
+            pointerId: t.identifier,
+            clientX: t.clientX,
+            clientY: t.clientY,
+          });
+          touchMap.delete(t.identifier);
         }
       }
+      svg.addEventListener('touchend', endTouches, { passive: false });
+      svg.addEventListener('touchcancel', endTouches, { passive: false });
+    }
+
+    svg.addEventListener('click', (e) => {
+      if (suppressClick) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      const cutId = e.target && e.target.getAttribute && e.target.getAttribute('data-cut-id');
+      if (cutId) return; // handled by button / pointerup
+      const onMark = e.target.closest && e.target.closest('.cw-mark');
+      if (!onMark) {
+        selectCutObj(null);
+      }
     });
+
+    // Keep hit targets sized if the viewport resizes (orientation / chrome)
+    let resizeTimer = null;
+    const ro = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            if (plant) renderMarks();
+          }, 80);
+        })
+      : null;
+    if (ro) ro.observe(host);
 
     applyTransform();
 
@@ -552,15 +743,11 @@
         onSelect(null);
       },
       selectCut(cutId) {
-        selectedId = cutId;
-        renderMarks();
         const cut = plant && plant.cuts ? plant.cuts.find((c) => c.id === cutId) : null;
-        onSelect(cut || null);
+        selectCutObj(cut || null);
       },
       clearSelection() {
-        selectedId = null;
-        renderMarks();
-        onSelect(null);
+        selectCutObj(null);
       },
       resetView() {
         scale = 1;
@@ -579,6 +766,7 @@
         return selectedId;
       },
       destroy() {
+        if (ro) ro.disconnect();
         host.innerHTML = '';
       },
     };
