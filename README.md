@@ -1,10 +1,12 @@
 # Crownwork
 
-Interactive pruning trainer for North American fruiting plants. Click labeled cut points on a diagram to learn **how** and **why** to prune; switch to **Advanced** for before/after physiology (auxin, apical dominance, carbohydrate allocation, wound response) with short Extension citations.
+Interactive **fruit-tree pruning desk** for North American fruiting plants. Click labeled cut points on a cream-paper diagram to learn **how**, **why**, **when**, and what **good vs bad** cuts look like. Switch to **Advanced** for before/after physiology (auxin, apical dominance, carbohydrate allocation, CODIT wound response) with short Extension citations.
 
-Default mode: **Trees / apple** with a central-leader diagram and 8 cut markers. Berries, vines, and other woody crops share the same UI shell with real cut copy and simpler diagram variants.
+Default mode: **Trees** — apple (central leader), peach (open center), pear (upright / spurs), each with anatomy labels, thinning vs heading, renewal, suckers/watersprouts, deadwood, narrow crotches, and crossing wood. Berries, vines, and other woody crops share the same UI shell.
 
-Part of the [frank-dixon.github.io](https://frank-dixon.github.io/) hub (cool spectrum: void / sea / action).
+**Live:** [frank-dixon.github.io/crownwork](https://frank-dixon.github.io/crownwork/) (GitHub Pages from `docs/`).
+
+Part of the [frank-dixon.github.io](https://frank-dixon.github.io/) hub — cream / paper surfaces with turquoise `#0B8A8F`.
 
 ## Run locally
 
@@ -21,16 +23,16 @@ One-shot production build:
 npm run build
 ```
 
-Built assets land in `docs/css/` and `docs/js/` (commit those for Pages when you enable it).
+Built assets land in `docs/css/` and `docs/js/` (committed for Pages).
 
 ## Notes
 
-- **GitHub Pages is not enabled yet** for this repository. The app is Pages-ready under `docs/` when you turn it on.
-- Tailwind utility classes only for layout/chrome; plant rendering is SVG via `src/js/plant.js`.
-- Accessibility: focusable cut markers, Escape closes the detail panel, `prefers-reduced-motion` respected in CSS.
+- Theme tokens live in `tailwind.config.js` (void/bg/raised cream, sea teal, wood, cut).
+- Tailwind utility classes for layout/chrome; plant rendering is SVG via `src/js/plant.js` (wood browns + teal strokes, optional anatomy label layer).
+- Accessibility: focusable cut markers, Escape closes the detail panel, anatomy labels toggle, `prefers-reduced-motion` respected in CSS.
 
 ## Stack
 
-- Tailwind CSS 3 (hub tokens in `tailwind.config.js`)
+- Tailwind CSS 3 (hub cream + teal tokens)
 - Plain ES5-friendly IIFE modules minified with esbuild into `docs/js/`
 - No framework runtime

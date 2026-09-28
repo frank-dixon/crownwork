@@ -1,5 +1,6 @@
 /**
- * Crownwork — SVG plant viewport with pan/zoom and focusable cut markers.
+ * Crownwork — SVG plant viewport with pan/zoom, anatomy labels, focusable cut markers.
+ * Cream-paper palette: wood browns + teal #0B8A8F (not dark void blues).
  */
 (function (global) {
   'use strict';
@@ -7,6 +8,22 @@
   const NS = 'http://www.w3.org/2000/svg';
   const VIEW_W = 400;
   const VIEW_H = 360;
+
+  const C = {
+    soil: '#C4B5A0',
+    wood: '#6B5344',
+    woodMid: '#8A6F5C',
+    woodLight: '#A08B78',
+    teal: '#0B8A8F',
+    tealSoft: '#0D9FA5',
+    tealDim: '#086F73',
+    cut: '#B86A3C',
+    mute: '#7A7368',
+    ink: '#1C1916',
+    paper: '#FAF7F1',
+    foliage: '#0B8A8F',
+    dash: '#A89888',
+  };
 
   function el(name, attrs, parent) {
     const node = document.createElementNS(NS, name);
@@ -21,203 +38,226 @@
     return node;
   }
 
-  function drawTree(g) {
-    // Soil mound
-    el('ellipse', { cx: 200, cy: 330, rx: 90, ry: 14, fill: '#1a2230', opacity: '0.9' }, g);
-    // Trunk
-    el('path', {
-      d: 'M190 320 C192 260 194 200 198 120 C199 100 200 80 200 60',
-      stroke: '#6B7FD7',
-      'stroke-width': '10',
-      'stroke-linecap': 'round',
-      fill: 'none',
-      opacity: '0.85',
+  function soil(g, rx) {
+    el('ellipse', {
+      cx: 200, cy: 332, rx: rx || 92, ry: 13,
+      fill: C.soil, opacity: '0.55',
     }, g);
+    el('ellipse', {
+      cx: 200, cy: 328, rx: (rx || 92) - 18, ry: 7,
+      fill: C.wood, opacity: '0.12',
+    }, g);
+  }
+
+  function limb(g, d, width, color, opacity) {
     el('path', {
-      d: 'M200 60 C200 80 201 100 202 120 C206 200 208 260 210 320',
-      stroke: '#5FA8A0',
-      'stroke-width': '6',
+      d,
+      stroke: color || C.wood,
+      'stroke-width': String(width),
       'stroke-linecap': 'round',
+      'stroke-linejoin': 'round',
+      fill: 'none',
+      opacity: String(opacity != null ? opacity : 0.92),
+    }, g);
+  }
+
+  function foliage(g, spots) {
+    spots.forEach(([cx, cy, r]) => {
+      el('circle', {
+        cx, cy, r,
+        fill: C.foliage,
+        opacity: '0.10',
+      }, g);
+    });
+  }
+
+  /** Central-leader apple-style tree with richer scaffolding */
+  function drawTree(g) {
+    soil(g, 95);
+    // Trunk (wood brown + teal highlight)
+    limb(g, 'M189 322 C191 270 193 210 197 125 C198 100 199 78 200 55', 11, C.wood, 0.95);
+    limb(g, 'M200 55 C201 78 202 100 203 125 C207 210 209 270 211 322', 6, C.teal, 0.45);
+    // Lower scaffolds
+    limb(g, 'M197 128 C155 122 125 138 98 168', 5.5, C.woodMid);
+    limb(g, 'M203 142 C245 136 278 152 305 178', 5.5, C.woodMid);
+    limb(g, 'M198 182 C150 192 122 220 108 252', 4.5, C.wood);
+    limb(g, 'M202 198 C250 208 282 230 308 258', 4.5, C.wood);
+    // Upper scaffolds / laterals
+    limb(g, 'M200 92 C168 86 148 92 130 108', 3.8, C.woodLight);
+    limb(g, 'M200 102 C232 96 258 105 278 124', 3.8, C.woodLight);
+    // Secondary laterals
+    limb(g, 'M120 155 C105 150 95 152 88 160', 2.5, C.teal, 0.7);
+    limb(g, 'M280 160 C295 155 305 158 312 168', 2.5, C.teal, 0.7);
+    limb(g, 'M130 230 C118 240 112 255 110 268', 2.4, C.woodLight, 0.8);
+    limb(g, 'M290 240 C302 248 308 262 310 275', 2.4, C.woodLight, 0.8);
+    // Spur suggestions
+    [[150, 208], [158, 218], [145, 225], [250, 215], [258, 225]].forEach(([x, y]) => {
+      limb(g, `M${x} ${y} L${x + 6} ${y - 8}`, 1.6, C.tealDim, 0.75);
+    });
+    foliage(g, [
+      [98, 165, 30], [305, 175, 28], [108, 248, 24], [308, 255, 26],
+      [130, 105, 20], [278, 120, 22], [200, 52, 32], [160, 200, 16], [250, 210, 16],
+    ]);
+    // Crossing hint
+    el('path', {
+      d: 'M152 172 C172 158 184 172 196 188',
+      stroke: C.dash,
+      'stroke-width': '2.4',
+      'stroke-dasharray': '4 3',
       fill: 'none',
       opacity: '0.55',
     }, g);
-    // Scaffolds
-    const limbs = [
-      'M198 130 C160 125 130 140 105 165',
-      'M202 145 C240 140 270 155 295 175',
-      'M199 185 C155 195 130 220 115 250',
-      'M201 200 C245 205 275 225 300 255',
-      'M200 95 C170 90 150 95 135 110',
-      'M200 105 C230 100 255 108 275 125',
-    ];
-    limbs.forEach((d, i) => {
-      el('path', {
-        d,
-        stroke: i % 2 === 0 ? '#5FA8A0' : '#6B7FD7',
-        'stroke-width': String(4.5 - (i % 3) * 0.5),
-        'stroke-linecap': 'round',
-        fill: 'none',
-        opacity: '0.8',
-      }, g);
-    });
-    // Foliage suggestion
-    [
-      [105, 160, 28],
-      [295, 170, 26],
-      [115, 245, 22],
-      [300, 250, 24],
-      [135, 105, 18],
-      [275, 120, 20],
-      [200, 55, 30],
-    ].forEach(([cx, cy, r]) => {
-      el('circle', {
-        cx, cy, r,
-        fill: '#5FA8A0',
-        opacity: '0.12',
-      }, g);
-    });
-    // Crossing hint line
+    // Watersprout
+    limb(g, 'M206 278 C209 258 211 245 209 228', 3, C.cut, 0.8);
+  }
+
+  /** Open-center peach vase */
+  function drawTreeOpen(g) {
+    soil(g, 100);
+    // Short trunk
+    limb(g, 'M192 322 C194 290 196 265 200 235', 12, C.wood, 0.95);
+    limb(g, 'M200 235 C204 265 206 290 208 322', 6, C.teal, 0.4);
+    // Vase scaffolds (3–4 arms)
+    limb(g, 'M198 235 C160 210 120 170 95 125', 6, C.woodMid);
+    limb(g, 'M202 235 C240 210 280 170 305 128', 6, C.woodMid);
+    limb(g, 'M200 238 C175 250 145 270 125 295', 5, C.wood);
+    limb(g, 'M200 238 C225 250 255 270 278 295', 5, C.wood);
+    // Fruiting one-year wood (finer)
+    limb(g, 'M110 145 C100 120 105 100 115 85', 3, C.woodLight);
+    limb(g, 'M145 155 C140 125 150 100 160 82', 3.2, C.teal, 0.75);
+    limb(g, 'M255 155 C260 125 250 100 242 82', 3.2, C.teal, 0.75);
+    limb(g, 'M290 148 C300 125 298 105 288 88', 3, C.woodLight);
+    limb(g, 'M130 200 C115 190 100 185 90 178', 2.5, C.woodLight, 0.85);
+    limb(g, 'M270 200 C285 190 300 185 310 178', 2.5, C.woodLight, 0.85);
+    // Crossing in bowl
     el('path', {
-      d: 'M155 175 C175 160 185 175 195 190',
-      stroke: '#8B93A3',
-      'stroke-width': '2.5',
+      d: 'M160 130 C180 115 210 125 235 118',
+      stroke: C.dash,
+      'stroke-width': '2.2',
       'stroke-dasharray': '4 3',
       fill: 'none',
       opacity: '0.5',
     }, g);
-    // Sucker
+    foliage(g, [
+      [100, 120, 26], [305, 125, 26], [150, 90, 22], [250, 90, 22],
+      [125, 290, 18], [278, 290, 18], [200, 200, 36],
+    ]);
+    // Watersprout in center
+    limb(g, 'M205 250 C208 230 210 215 208 200', 3, C.cut, 0.8);
+  }
+
+  /** Upright pear with spur accents */
+  function drawTreeUpright(g) {
+    soil(g, 88);
+    // Tall narrow trunk
+    limb(g, 'M192 322 C194 260 196 190 198 110 C199 85 200 65 200 48', 10, C.wood, 0.95);
+    limb(g, 'M200 48 C201 65 202 85 203 110 C205 190 207 260 208 322', 5, C.teal, 0.42);
+    // Steep scaffolds
+    limb(g, 'M198 120 C170 115 150 125 135 150', 4.5, C.woodMid);
+    limb(g, 'M202 135 C235 128 255 140 268 165', 4.5, C.woodMid);
+    limb(g, 'M199 175 C165 180 145 200 132 230', 4, C.wood);
+    limb(g, 'M201 190 C235 195 255 215 270 245', 4, C.wood);
+    limb(g, 'M200 85 C178 80 165 85 152 98', 3.2, C.woodLight);
+    limb(g, 'M200 95 C222 90 240 96 255 110', 3.2, C.woodLight);
+    // Extra upright competitor
+    limb(g, 'M205 145 C212 125 218 110 222 95', 3.5, C.cut, 0.65);
+    // Spur clusters
+    [[140, 195], [148, 205], [138, 212], [250, 200], [258, 210], [160, 155], [245, 160]].forEach(([x, y]) => {
+      limb(g, `M${x} ${y} L${x + 5} ${y - 7}`, 1.5, C.tealDim, 0.8);
+      limb(g, `M${x} ${y} L${x - 4} ${y - 6}`, 1.3, C.teal, 0.55);
+    });
+    foliage(g, [
+      [135, 148, 22], [268, 162, 22], [132, 228, 20], [270, 242, 20],
+      [152, 95, 16], [255, 108, 16], [200, 45, 28],
+    ]);
     el('path', {
-      d: 'M205 275 C208 255 210 245 208 230',
-      stroke: '#E8A87C',
-      'stroke-width': '3',
-      'stroke-linecap': 'round',
+      d: 'M155 170 C175 155 185 170 195 185',
+      stroke: C.dash,
+      'stroke-width': '2.2',
+      'stroke-dasharray': '4 3',
       fill: 'none',
-      opacity: '0.7',
+      opacity: '0.5',
     }, g);
+    limb(g, 'M204 275 C207 255 209 242 207 228', 3, C.cut, 0.8);
   }
 
   function drawBerry(g) {
-    el('ellipse', { cx: 200, cy: 330, rx: 80, ry: 12, fill: '#1a2230', opacity: '0.9' }, g);
+    soil(g, 82);
     const canes = [
-      [160, 320, 130, 80],
-      [180, 320, 170, 60],
-      [200, 320, 200, 50],
-      [220, 320, 240, 70],
-      [240, 320, 280, 100],
+      [160, 320, 128, 78],
+      [180, 320, 168, 58],
+      [200, 320, 200, 48],
+      [220, 320, 242, 68],
+      [240, 320, 282, 98],
     ];
     canes.forEach(([x1, y1, x2, y2], i) => {
-      el('path', {
-        d: `M${x1} ${y1} Q${(x1 + x2) / 2 + (i - 2) * 8} ${(y1 + y2) / 2} ${x2} ${y2}`,
-        stroke: i === 0 || i === 4 ? '#6B7FD7' : '#5FA8A0',
-        'stroke-width': i === 0 ? '5' : '3.5',
-        'stroke-linecap': 'round',
-        fill: 'none',
-        opacity: i === 0 ? '0.55' : '0.85',
-      }, g);
-      // side laterals
-      el('path', {
-        d: `M${x2} ${y2 + 40} L${x2 + (i < 2 ? -25 : 25)} ${y2 + 20}`,
-        stroke: '#5FA8A0',
-        'stroke-width': '2',
-        'stroke-linecap': 'round',
-        fill: 'none',
-        opacity: '0.65',
-      }, g);
+      limb(
+        g,
+        `M${x1} ${y1} Q${(x1 + x2) / 2 + (i - 2) * 8} ${(y1 + y2) / 2} ${x2} ${y2}`,
+        i === 0 ? 5 : 3.5,
+        i === 0 ? C.woodLight : (i % 2 ? C.wood : C.teal),
+        i === 0 ? 0.55 : 0.88
+      );
+      limb(
+        g,
+        `M${x2} ${y2 + 40} L${x2 + (i < 2 ? -25 : 25)} ${y2 + 20}`,
+        2,
+        C.teal,
+        0.65
+      );
     });
-    [[130, 80], [170, 60], [200, 50], [240, 70], [280, 100]].forEach(([cx, cy]) => {
-      el('circle', { cx, cy, r: 14, fill: '#5FA8A0', opacity: '0.14' }, g);
-    });
+    foliage(g, [[128, 78, 14], [168, 58, 14], [200, 48, 16], [242, 68, 14], [282, 98, 14]]);
   }
 
   function drawVine(g) {
-    el('ellipse', { cx: 200, cy: 330, rx: 50, ry: 10, fill: '#1a2230', opacity: '0.9' }, g);
-    // trunk
-    el('path', {
-      d: 'M200 320 L200 200',
-      stroke: '#6B7FD7',
-      'stroke-width': '8',
-      'stroke-linecap': 'round',
-      fill: 'none',
-    }, g);
-    // cordon wire
+    soil(g, 52);
+    limb(g, 'M200 320 L200 200', 8, C.wood);
     el('line', {
       x1: 60, y1: 160, x2: 340, y2: 160,
-      stroke: '#243041',
+      stroke: C.dash,
       'stroke-width': '2',
       'stroke-dasharray': '6 4',
+      opacity: '0.7',
     }, g);
-    // cordon arms
-    el('path', {
-      d: 'M200 200 L200 160 M200 160 L80 155 M200 160 L320 155',
-      stroke: '#5FA8A0',
-      'stroke-width': '5',
-      'stroke-linecap': 'round',
-      fill: 'none',
-    }, g);
-    // canes / spurs
+    limb(g, 'M200 200 L200 160 M200 160 L80 155 M200 160 L320 155', 5, C.woodMid);
     [[100, 155, 95, 100], [140, 156, 145, 110], [180, 158, 175, 105],
      [240, 158, 250, 100], [280, 156, 290, 115], [310, 155, 320, 130]].forEach(([x1, y1, x2, y2], i) => {
-      el('path', {
-        d: `M${x1} ${y1} L${x2} ${y2}`,
-        stroke: i % 2 ? '#6B7FD7' : '#5FA8A0',
-        'stroke-width': '2.5',
-        'stroke-linecap': 'round',
-        fill: 'none',
-        opacity: '0.85',
-      }, g);
+      limb(g, `M${x1} ${y1} L${x2} ${y2}`, 2.5, i % 2 ? C.wood : C.teal, 0.85);
     });
-    // trunk sucker
-    el('path', {
-      d: 'M205 290 L220 250',
-      stroke: '#E8A87C',
-      'stroke-width': '2.5',
-      'stroke-linecap': 'round',
-      fill: 'none',
-      opacity: '0.75',
-    }, g);
+    limb(g, 'M205 290 L220 250', 2.5, C.cut, 0.8);
   }
 
   function drawOther(g) {
-    el('ellipse', { cx: 200, cy: 330, rx: 85, ry: 12, fill: '#1a2230', opacity: '0.9' }, g);
-    // multi-stem stool
+    soil(g, 88);
     [[170, 320, 150, 90], [200, 320, 200, 55], [230, 320, 260, 95]].forEach(([x1, y1, x2, y2], i) => {
-      el('path', {
-        d: `M${x1} ${y1} Q${(x1 + x2) / 2} ${y1 - 80} ${x2} ${y2}`,
-        stroke: i === 1 ? '#6B7FD7' : '#5FA8A0',
-        'stroke-width': '6',
-        'stroke-linecap': 'round',
-        fill: 'none',
-        opacity: '0.8',
-      }, g);
+      limb(
+        g,
+        `M${x1} ${y1} Q${(x1 + x2) / 2} ${y1 - 80} ${x2} ${y2}`,
+        6,
+        i === 1 ? C.wood : C.woodMid,
+        0.88
+      );
     });
-    [[150, 90, 40], [200, 55, 48], [260, 95, 36]].forEach(([cx, cy, r]) => {
-      el('circle', { cx, cy, r, fill: '#5FA8A0', opacity: '0.13' }, g);
-    });
-    // side branches
-    el('path', {
-      d: 'M175 180 L120 150 M225 170 L290 145 M200 120 L160 100 M200 130 L250 110',
-      stroke: '#6B7FD7',
-      'stroke-width': '3',
-      'stroke-linecap': 'round',
-      fill: 'none',
-      opacity: '0.7',
-    }, g);
+    foliage(g, [[150, 90, 40], [200, 55, 48], [260, 95, 36]]);
+    limb(g, 'M175 180 L120 150 M225 170 L290 145 M200 120 L160 100 M200 130 L250 110', 3, C.teal, 0.7);
   }
 
   const DIAGRAMS = {
     tree: drawTree,
+    'tree-open': drawTreeOpen,
+    'tree-upright': drawTreeUpright,
     berry: drawBerry,
     vine: drawVine,
     other: drawOther,
   };
 
   const KIND_COLORS = {
-    heading: '#6B7FD7',
-    thinning: '#5FA8A0',
-    renewal: '#7BC4BC',
-    sucker: '#E8A87C',
-    deadwood: '#8B93A3',
-    structural: '#8A9AE8',
+    heading: C.teal,
+    thinning: C.tealDim,
+    renewal: C.tealSoft,
+    sucker: C.cut,
+    deadwood: C.mute,
+    structural: C.woodMid,
   };
 
   /**
@@ -229,6 +269,7 @@
     let onSelect = typeof opts.onSelect === 'function' ? opts.onSelect : function () {};
     let plant = null;
     let selectedId = null;
+    let anatomyVisible = true;
 
     let scale = 1;
     let tx = 0;
@@ -256,6 +297,7 @@
     const root = el('g', { class: 'cw-root' }, svg);
     const world = el('g', { class: 'cw-world' }, root);
     const plantLayer = el('g', { class: 'cw-plant' }, world);
+    const anatomyLayer = el('g', { class: 'cw-anatomy' }, world);
     const marksLayer = el('g', { class: 'cw-marks' }, world);
 
     function applyTransform() {
@@ -278,46 +320,86 @@
       applyTransform();
     }
 
-    function clearMarks() {
-      while (marksLayer.firstChild) marksLayer.removeChild(marksLayer.firstChild);
+    function clearLayer(layer) {
+      while (layer.firstChild) layer.removeChild(layer.firstChild);
+    }
+
+    function renderAnatomy() {
+      clearLayer(anatomyLayer);
+      anatomyLayer.setAttribute('display', anatomyVisible ? 'inline' : 'none');
+      if (!anatomyVisible || !plant || !plant.anatomyLabels) return;
+      plant.anatomyLabels.forEach((item) => {
+        const g = el('g', {
+          class: 'cw-anatomy-item pointer-events-none',
+          transform: `translate(${item.x} ${item.y})`,
+        }, anatomyLayer);
+        el('circle', {
+          r: '3',
+          fill: C.teal,
+          opacity: '0.7',
+        }, g);
+        const labelBg = el('rect', {
+          x: '6',
+          y: '-8',
+          rx: '3',
+          ry: '3',
+          fill: C.paper,
+          stroke: C.dash,
+          'stroke-width': '1',
+          opacity: '0.92',
+        }, g);
+        const text = el('text', {
+          x: '10',
+          y: '3',
+          fill: C.ink,
+          'font-size': '9',
+          'font-family': 'Inter, system-ui, sans-serif',
+          'font-weight': '500',
+        }, g);
+        text.textContent = item.label;
+        try {
+          const bbox = text.getBBox();
+          labelBg.setAttribute('width', String(bbox.width + 8));
+          labelBg.setAttribute('height', String(bbox.height + 4));
+          labelBg.setAttribute('y', String(-bbox.height + 2));
+        } catch (_) {
+          labelBg.setAttribute('width', String(Math.max(28, item.label.length * 5.5 + 8)));
+          labelBg.setAttribute('height', '14');
+        }
+      });
     }
 
     function renderMarks() {
-      clearMarks();
+      clearLayer(marksLayer);
       if (!plant || !plant.cuts) return;
-      plant.cuts.forEach((cut, index) => {
-        const color = KIND_COLORS[cut.kind] || '#E8A87C';
+      plant.cuts.forEach((cut) => {
+        const color = KIND_COLORS[cut.kind] || C.cut;
         const g = el('g', {
           class: 'cw-mark',
           transform: `translate(${cut.x} ${cut.y})`,
         }, marksLayer);
 
-        const hit = el('circle', {
-          r: '14',
-          fill: 'transparent',
-          class: 'cw-mark-hit',
-        }, g);
+        el('circle', { r: '14', fill: 'transparent', class: 'cw-mark-hit' }, g);
 
         const ring = el('circle', {
           r: '9',
           fill: color,
-          opacity: '0.25',
+          opacity: '0.22',
           class: 'cw-mark-ring',
         }, g);
 
-        const dot = el('circle', {
+        el('circle', {
           r: '5',
           fill: color,
-          stroke: '#050608',
+          stroke: C.paper,
           'stroke-width': '1.5',
           class: 'cw-mark-dot',
         }, g);
 
-        // Focusable button-like foreignObject alternative: use <a> or make circle focusable
         const btn = el('circle', {
           r: '11',
           fill: 'transparent',
-          stroke: selectedId === cut.id ? '#E6EAF0' : 'transparent',
+          stroke: selectedId === cut.id ? C.ink : 'transparent',
           'stroke-width': selectedId === cut.id ? '2' : '0',
           tabindex: '0',
           role: 'button',
@@ -331,14 +413,13 @@
           ring.setAttribute('opacity', '0.4');
           try {
             ring.classList.add('animate-pulse-cut');
-          } catch (_) { /* svg classList ok in modern browsers */ }
+          } catch (_) { /* ok */ }
         }
 
         function select() {
           selectedId = cut.id;
           renderMarks();
           onSelect(cut);
-          // restore focus to the newly rendered button
           const next = marksLayer.querySelector(`[data-cut-id="${cut.id}"]`);
           if (next && typeof next.focus === 'function') {
             try { next.focus(); } catch (_) { /* ignore */ }
@@ -356,35 +437,33 @@
           }
         });
 
-        // Label tick for first few
-        if (index < 10) {
-          const label = el('text', {
-            x: '14',
-            y: '4',
-            fill: '#B7C0CE',
-            'font-size': '9',
-            'font-family': 'Inter, system-ui, sans-serif',
-            class: 'cw-mark-label pointer-events-none',
-            opacity: '0.85',
-          }, g);
-          label.textContent = cut.label.split('—')[0].trim();
-        }
-
-        void hit;
-        void dot;
+        const short = cut.label.split('—')[0].trim();
+        const label = el('text', {
+          x: '14',
+          y: '4',
+          fill: C.mute,
+          'font-size': '9',
+          'font-family': 'Inter, system-ui, sans-serif',
+          class: 'cw-mark-label pointer-events-none',
+          opacity: '0.9',
+        }, g);
+        label.textContent = short;
       });
     }
 
     function renderPlant() {
-      while (plantLayer.firstChild) plantLayer.removeChild(plantLayer.firstChild);
+      clearLayer(plantLayer);
       if (!plant) return;
       const drawer = DIAGRAMS[plant.diagram] || drawTree;
       drawer(plantLayer);
+      renderAnatomy();
       renderMarks();
-      svg.setAttribute('aria-label', `${plant.label} pruning diagram with ${plant.cuts.length} cut markers`);
+      svg.setAttribute(
+        'aria-label',
+        `${plant.label} pruning diagram with ${plant.cuts.length} cut markers`
+      );
     }
 
-    // Pan / zoom interactions
     svg.addEventListener('wheel', (e) => {
       e.preventDefault();
       const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
@@ -435,9 +514,7 @@
 
     function endPointer(e) {
       pointers.delete(e.pointerId);
-      if (pointers.size < 2) {
-        pinchStartDist = 0;
-      }
+      if (pointers.size < 2) pinchStartDist = 0;
       if (pointers.size === 0) {
         dragging = false;
         svg.style.cursor = 'grab';
@@ -451,7 +528,6 @@
       if (e.target === svg || e.target === root || e.target === world || e.target === plantLayer ||
           (e.target.closest && e.target.closest('.cw-plant'))) {
         if (!(e.target.getAttribute && e.target.getAttribute('data-cut-id'))) {
-          // background click — deselect only if not on a mark
           const onMark = e.target.closest && e.target.closest('.cw-mark');
           if (!onMark) {
             selectedId = null;
@@ -491,6 +567,13 @@
         tx = 0;
         ty = 0;
         applyTransform();
+      },
+      setAnatomyVisible(visible) {
+        anatomyVisible = !!visible;
+        renderAnatomy();
+      },
+      getAnatomyVisible() {
+        return anatomyVisible;
       },
       getSelectedId() {
         return selectedId;

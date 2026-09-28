@@ -1,5 +1,5 @@
 /**
- * Crownwork — mode switcher, Simple/Advanced, cut detail panel, sources.
+ * Crownwork — mode switcher, Simple/Advanced, cut detail panel, anatomy toggle, sources.
  */
 (function () {
   'use strict';
@@ -15,14 +15,16 @@
   const state = {
     modeId: 'trees',
     plantId: 'apple',
-    level: 'simple', // 'simple' | 'advanced'
+    level: 'simple',
     cut: null,
+    anatomyVisible: true,
   };
 
   const els = {
     modeTabs: document.getElementById('mode-tabs'),
     plantSelect: document.getElementById('plant-select'),
     plantIntro: document.getElementById('plant-intro'),
+    plantHabit: document.getElementById('plant-habit'),
     levelToggle: document.getElementById('level-toggle'),
     viewport: document.getElementById('plant-viewport'),
     panel: document.getElementById('cut-panel'),
@@ -33,12 +35,18 @@
     cutKind: document.getElementById('cut-kind'),
     cutHow: document.getElementById('cut-how'),
     cutWhy: document.getElementById('cut-why'),
+    cutWhen: document.getElementById('cut-when'),
+    cutGood: document.getElementById('cut-good'),
+    cutBad: document.getElementById('cut-bad'),
+    whenBlock: document.getElementById('when-block'),
+    goodbadBlock: document.getElementById('goodbad-block'),
     advancedBlock: document.getElementById('advanced-block'),
     physioBefore: document.getElementById('physio-before'),
     physioAfter: document.getElementById('physio-after'),
     cutSources: document.getElementById('cut-sources'),
     sourcesList: document.getElementById('sources-list'),
     resetView: document.getElementById('reset-view'),
+    anatomyToggle: document.getElementById('toggle-anatomy') || document.getElementById('anatomy-toggle'),
   };
 
   let plantView = null;
@@ -70,9 +78,9 @@
   function tabClass(active) {
     return [
       'px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 ease-crown',
-      'focus:outline-none focus-visible:ring-2 focus-visible:ring-action-bright',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright',
       active
-        ? 'bg-action text-ink'
+        ? 'bg-sea text-void shadow-sm'
         : 'bg-raised text-soft hover:text-ink hover:bg-line/60 border border-line',
     ].join(' ');
   }
@@ -106,7 +114,19 @@
   function renderIntro() {
     const plant = currentPlant();
     if (els.plantIntro) {
-      els.plantIntro.textContent = plant.intro || '';
+      const parts = [];
+      if (plant.intro) parts.push(plant.intro);
+      if (plant.speciesNote) parts.push(plant.speciesNote);
+      els.plantIntro.textContent = parts.join(' ');
+    }
+    if (els.plantHabit) {
+      if (plant.habit) {
+        els.plantHabit.textContent = plant.habit;
+        els.plantHabit.classList.remove('hidden');
+      } else {
+        els.plantHabit.textContent = '';
+        els.plantHabit.classList.add('hidden');
+      }
     }
   }
 
@@ -114,13 +134,11 @@
     state.cut = cut;
     if (!els.panel) return;
     if (!cut) {
-      els.panel.classList.add('hidden');
       els.panel.setAttribute('aria-hidden', 'true');
       if (els.panelEmpty) els.panelEmpty.classList.remove('hidden');
       if (els.panelInner) els.panelInner.classList.add('hidden');
       return;
     }
-    els.panel.classList.remove('hidden');
     els.panel.setAttribute('aria-hidden', 'false');
     if (els.panelEmpty) els.panelEmpty.classList.add('hidden');
     if (els.panelInner) {
@@ -134,12 +152,22 @@
     if (els.cutKind) {
       els.cutKind.textContent = cut.kind;
       els.cutKind.className =
-        'inline-block text-xs uppercase tracking-wide2 px-2 py-0.5 rounded bg-raised border border-line text-sea-bright';
+        'inline-block text-xs uppercase tracking-wide2 px-2 py-0.5 rounded bg-void border border-line text-sea';
     }
 
     const simple = cut.simple || {};
     if (els.cutHow) els.cutHow.textContent = simple.how || '';
     if (els.cutWhy) els.cutWhy.textContent = simple.why || '';
+    if (els.cutWhen) els.cutWhen.textContent = simple.when || '';
+    if (els.cutGood) els.cutGood.textContent = simple.goodLooksLike || '';
+    if (els.cutBad) els.cutBad.textContent = simple.badLooksLike || '';
+
+    if (els.whenBlock) {
+      els.whenBlock.classList.toggle('hidden', !simple.when);
+    }
+    if (els.goodbadBlock) {
+      els.goodbadBlock.classList.toggle('hidden', !(simple.goodLooksLike || simple.badLooksLike));
+    }
 
     const showAdv = state.level === 'advanced';
     if (els.advancedBlock) {
@@ -201,7 +229,10 @@
 
   function syncPlantView() {
     const plant = currentPlant();
-    if (plantView) plantView.setPlant(plant);
+    if (plantView) {
+      plantView.setPlant(plant);
+      plantView.setAnatomyVisible(state.anatomyVisible);
+    }
   }
 
   function syncAll() {
@@ -254,6 +285,14 @@
           renderLevelToggle();
           if (state.cut) openPanel(state.cut);
         });
+      });
+    }
+
+    if (els.anatomyToggle) {
+      state.anatomyVisible = !!els.anatomyToggle.checked;
+      els.anatomyToggle.addEventListener('change', () => {
+        state.anatomyVisible = !!els.anatomyToggle.checked;
+        if (plantView) plantView.setAnatomyVisible(state.anatomyVisible);
       });
     }
 

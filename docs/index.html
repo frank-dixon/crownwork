@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Crownwork — Pruning Trainer</title>
-  <meta name="description" content="Interactive pruning trainer for North American fruiting plants. Learn where to cut, why it matters, and what changes in the plant." />
+  <title>Crownwork — Fruit Tree Pruning Desk</title>
+  <meta name="description" content="Interactive fruit-tree pruning desk for apple, peach, and pear. Learn anatomy, cut types, timing, and physiology with Extension-style guidance." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -12,12 +12,12 @@
 </head>
 <body class="min-h-screen bg-bg text-ink font-sans antialiased">
   <!-- Sticky hub header -->
-  <header class="sticky top-0 z-40 border-b border-line/80 bg-void/90 backdrop-blur-md">
+  <header class="sticky top-0 z-40 border-b border-line bg-void/95 backdrop-blur-md">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
       <div class="flex items-center gap-4 min-w-0">
         <a
           href="https://frank-dixon.github.io/"
-          class="text-xs uppercase tracking-wide2 text-mute hover:text-sea-bright transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded"
+          class="text-xs uppercase tracking-wide2 text-mute hover:text-sea transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded"
         >Hub</a>
         <span class="text-line" aria-hidden="true">/</span>
         <h1 class="font-display font-semibold tracking-brand text-sm sm:text-base text-ink truncate">
@@ -25,7 +25,7 @@
         </h1>
       </div>
       <p class="hidden sm:block text-xs text-mute truncate max-w-xs text-right">
-        Pruning trainer for fruiting plants
+        Fruit-tree pruning desk
       </p>
     </div>
   </header>
@@ -34,12 +34,14 @@
     <!-- Lead -->
     <section class="mb-6 sm:mb-8">
       <p class="font-display text-2xl sm:text-3xl font-semibold text-ink tracking-tight max-w-2xl">
-        Learn where to cut—and what the plant does next.
+        A field-guide desk for pruning fruit trees.
       </p>
-      <p class="mt-3 text-lede max-w-2xl leading-relaxed">
-        Crownwork is an interactive pruning trainer for North American fruiting plants.
-        Start with apple on a central-leader tree, switch modes for berries, vines, and other woody crops,
-        and toggle Advanced to see before-and-after physiology with short citations.
+      <p class="mt-3 text-lede max-w-3xl leading-relaxed">
+        Crownwork teaches where to cut on apple, peach, and pear—with labeled anatomy, cut types
+        (thinning vs heading, renewal, suckers, deadwood, narrow crotches, crossing wood), season timing,
+        and what good vs bad cuts look like. Toggle Advanced for auxin, apical dominance, carbohydrate
+        allocation, and CODIT wound response with Extension citations. Berries, vines, and other woody
+        crops share the same shell.
       </p>
     </section>
 
@@ -55,14 +57,14 @@
             <label for="plant-select" class="block text-xs uppercase tracking-wide2 text-mute mb-1.5">Plant</label>
             <select
               id="plant-select"
-              class="bg-raised border border-line text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-action-bright min-w-[10rem]"
+              class="bg-raised border border-line text-ink text-sm rounded-lg px-3 py-2 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright min-w-[10rem]"
             ></select>
           </div>
           <div>
             <span class="block text-xs uppercase tracking-wide2 text-mute mb-1.5" id="level-label">Detail</span>
             <div
               id="level-toggle"
-              class="inline-flex p-0.5 rounded-lg bg-raised border border-line"
+              class="inline-flex p-0.5 rounded-lg bg-raised border border-line shadow-sm"
               role="group"
               aria-labelledby="level-label"
             >
@@ -73,17 +75,22 @@
         </div>
       </div>
       <p id="plant-intro" class="text-sm text-soft leading-relaxed max-w-3xl"></p>
+      <p id="plant-habit" class="text-sm text-lede leading-relaxed max-w-3xl hidden"></p>
     </section>
 
     <!-- Stage: viewport + panel -->
     <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-5 items-start">
       <div class="lg:col-span-3">
-        <div class="relative rounded-xl border border-line bg-void overflow-hidden shadow-lg shadow-black/40">
-          <div class="absolute top-3 right-3 z-10 flex gap-2">
+        <div class="relative rounded-xl border border-line bg-raised overflow-hidden shadow-paper">
+          <div class="absolute top-3 right-3 z-10 flex flex-wrap gap-2 justify-end">
+            <label class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md bg-void/95 border border-line text-soft cursor-pointer hover:text-ink shadow-sm">
+              <input type="checkbox" id="toggle-anatomy" class="rounded border-line text-sea focus:ring-sea" checked />
+              Anatomy labels
+            </label>
             <button
               type="button"
               id="reset-view"
-              class="text-xs px-2.5 py-1.5 rounded-md bg-raised/90 border border-line text-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright"
+              class="text-xs px-2.5 py-1.5 rounded-md bg-void/95 border border-line text-soft hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright shadow-sm"
             >Reset view</button>
           </div>
           <div
@@ -100,20 +107,21 @@
       <aside class="lg:col-span-2" aria-live="polite">
         <div
           id="cut-panel"
-          class="rounded-xl border border-line bg-raised min-h-[20rem] relative"
+          class="rounded-xl border border-line bg-raised min-h-[20rem] relative shadow-paper"
           aria-hidden="true"
         >
           <div id="cut-panel-empty" class="p-5 sm:p-6">
             <h2 class="font-display text-lg font-semibold text-ink">Cut detail</h2>
             <p class="mt-2 text-sm text-lede leading-relaxed">
-              Select a labeled marker on the plant to see how to make the cut and why it matters.
-              Switch to Advanced for before-and-after physiology and sources.
+              Select a labeled marker on the tree to see how to make the cut, why it matters, when to do it,
+              and what good vs bad looks like. Switch to Advanced for before-and-after physiology and sources.
             </p>
             <ul class="mt-4 space-y-2 text-sm text-soft">
-              <li class="flex gap-2"><span class="text-action-bright" aria-hidden="true">●</span> Heading — shorten a shoot to thicken and branch</li>
-              <li class="flex gap-2"><span class="text-sea-bright" aria-hidden="true">●</span> Thinning — remove a limb at its origin</li>
-              <li class="flex gap-2"><span class="text-sea" aria-hidden="true">●</span> Renewal — replace aging fruiting wood</li>
-              <li class="flex gap-2"><span class="text-cut" aria-hidden="true">●</span> Sucker — remove watersprouts and root suckers</li>
+              <li class="flex gap-2"><span class="text-sea font-bold" aria-hidden="true">●</span> <span><strong class="text-ink">Thinning</strong> — remove a limb at its origin; opens light without a flush of sprouts</span></li>
+              <li class="flex gap-2"><span class="text-action-bright font-bold" aria-hidden="true">●</span> <span><strong class="text-ink">Heading</strong> — shorten a shoot above a bud; thickens and branches</span></li>
+              <li class="flex gap-2"><span class="text-sea-dim font-bold" aria-hidden="true">●</span> <span><strong class="text-ink">Renewal</strong> — replace aging fruiting wood with younger units</span></li>
+              <li class="flex gap-2"><span class="text-cut font-bold" aria-hidden="true">●</span> <span><strong class="text-ink">Sucker</strong> — remove watersprouts and root suckers at the origin</span></li>
+              <li class="flex gap-2"><span class="text-mute font-bold" aria-hidden="true">●</span> <span><strong class="text-ink">Deadwood / structural</strong> — sanitation, narrow crotches, crossing wood</span></li>
             </ul>
           </div>
 
@@ -126,7 +134,7 @@
               <button
                 type="button"
                 id="cut-panel-close"
-                class="shrink-0 text-mute hover:text-ink text-sm px-2 py-1 rounded-md border border-transparent hover:border-line focus:outline-none focus-visible:ring-2 focus-visible:ring-action-bright"
+                class="shrink-0 text-mute hover:text-ink text-sm px-2 py-1 rounded-md border border-transparent hover:border-line focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright"
                 aria-label="Close cut detail"
               >Esc ✕</button>
             </div>
@@ -140,10 +148,24 @@
                 <h3 class="text-xs uppercase tracking-wide2 text-mute mb-1.5">Why</h3>
                 <p id="cut-why" class="text-sm text-lede leading-relaxed"></p>
               </div>
+              <div id="when-block">
+                <h3 class="text-xs uppercase tracking-wide2 text-mute mb-1.5">When</h3>
+                <p id="cut-when" class="text-sm text-lede leading-relaxed"></p>
+              </div>
+              <div id="goodbad-block" class="grid grid-cols-1 gap-3 pt-1">
+                <div class="rounded-lg border border-line bg-void/60 p-3">
+                  <h3 class="text-xs uppercase tracking-wide2 text-sea mb-1">Good look</h3>
+                  <p id="cut-good" class="text-sm text-lede leading-relaxed"></p>
+                </div>
+                <div class="rounded-lg border border-line bg-void/60 p-3">
+                  <h3 class="text-xs uppercase tracking-wide2 text-cut mb-1">Bad look</h3>
+                  <p id="cut-bad" class="text-sm text-lede leading-relaxed"></p>
+                </div>
+              </div>
             </div>
 
             <div id="advanced-block" class="hidden mt-6 pt-5 border-t border-line space-y-4">
-              <h3 class="font-display text-base font-semibold text-sea-bright">Physiology</h3>
+              <h3 class="font-display text-base font-semibold text-sea">Physiology</h3>
               <div>
                 <h4 class="text-xs uppercase tracking-wide2 text-mute mb-1.5">Before the cut</h4>
                 <p id="physio-before" class="text-sm text-lede leading-relaxed"></p>
@@ -159,6 +181,25 @@
       </aside>
     </section>
 
+    <!-- Anatomy key (trees) -->
+    <section id="anatomy-key" class="mt-8 sm:mt-10 rounded-xl border border-line bg-raised p-5 sm:p-6 shadow-paper">
+      <h2 class="font-display text-lg font-semibold text-ink">Tree anatomy (field guide)</h2>
+      <p class="mt-2 text-sm text-soft leading-relaxed max-w-3xl">
+        Labels on the diagram match this key. Learn the parts before you cut—fruiting wood and vegetative wood
+        respond differently, and crotch angle predicts whether a scaffold will hold a crop.
+      </p>
+      <dl class="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div><dt class="font-medium text-ink">Leader</dt><dd class="text-soft leading-relaxed">The central vertical trunk/shoot that sets tree height and dominance (central-leader systems).</dd></div>
+        <div><dt class="font-medium text-ink">Scaffold</dt><dd class="text-soft leading-relaxed">Primary permanent limb arising from the trunk; forms the framework.</dd></div>
+        <div><dt class="font-medium text-ink">Lateral</dt><dd class="text-soft leading-relaxed">Side shoot off a scaffold or leader; may become fruiting wood or a secondary scaffold.</dd></div>
+        <div><dt class="font-medium text-ink">Spur</dt><dd class="text-soft leading-relaxed">Short, stubby fruiting shoot (common on apple and pear) that carries flower buds for years.</dd></div>
+        <div><dt class="font-medium text-ink">Water sprout / sucker</dt><dd class="text-soft leading-relaxed">Vigorous upright from branch or root; rarely good fruit wood—usually remove.</dd></div>
+        <div><dt class="font-medium text-ink">Crotch angle</dt><dd class="text-soft leading-relaxed">Angle between trunk and scaffold. Wide (~45–60°) is strong; narrow with included bark is weak.</dd></div>
+        <div><dt class="font-medium text-ink">Fruiting wood</dt><dd class="text-soft leading-relaxed">Spurs and laterals that set flower buds; needs light. Protect and renew it.</dd></div>
+        <div><dt class="font-medium text-ink">Vegetative wood</dt><dd class="text-soft leading-relaxed">Extension shoots building structure or stealing vigor; manage with heading/thinning.</dd></div>
+      </dl>
+    </section>
+
     <!-- Sources -->
     <section class="mt-10 sm:mt-12 pt-8 border-t border-line" aria-labelledby="sources-heading">
       <h2 id="sources-heading" class="font-display text-lg font-semibold text-ink">Sources</h2>
@@ -172,7 +213,7 @@
 
   <footer class="border-t border-line mt-8">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-mute">
-      <p>Crownwork — part of the Frank Dixon hub. GitHub Pages is not enabled for this repo yet.</p>
+      <p>Crownwork — part of the Frank Dixon hub.</p>
       <a href="https://frank-dixon.github.io/" class="text-sea hover:text-sea-bright focus:outline-none focus-visible:ring-2 focus-visible:ring-sea-bright rounded">frank-dixon.github.io</a>
     </div>
   </footer>

@@ -1,5 +1,6 @@
 /**
  * Crownwork — plant modes, cut records, physiology notes, citations.
+ * Fruit-tree desk priority: apple (central leader), peach (open center), pear (upright/spurs).
  * Sources: Cornell Cooperative Extension, UMN Extension, standard pomology.
  */
 (function (global) {
@@ -17,6 +18,16 @@
       note: 'General woody-plant pruning physiology, wound response, and timing.',
     },
     {
+      id: 'cornell-peach',
+      label: 'Cornell / Northeast Extension — Peach & Stone Fruit',
+      note: 'Open-center training, heading for fruiting wood, and peach timing (avoid fall cuts).',
+    },
+    {
+      id: 'cornell-pear',
+      label: 'Cornell Cooperative Extension — Pear Culture',
+      note: 'Upright habit, spur systems, and fire-blight-aware pruning for European pear.',
+    },
+    {
       id: 'cornell-berries',
       label: 'Cornell Cooperative Extension — Berry Crops',
       note: 'Cane renewal and fruiting wood management for brambles and blueberries.',
@@ -29,7 +40,7 @@
     {
       id: 'pomology',
       label: 'Standard pomology (apical dominance & carbohydrate allocation)',
-      note: 'Auxin from apical buds suppresses laterals; pruning redirects carbs to remaining sinks.',
+      note: 'Auxin from apical buds suppresses laterals; pruning redirects carbs to remaining sinks. CODIT: walls seal wounds.',
     },
   ];
 
@@ -37,11 +48,15 @@
     return { before, after, cites: citeIds };
   }
 
+  function anatomy(labels) {
+    return labels;
+  }
+
   const MODES = {
     trees: {
       id: 'trees',
       label: 'Trees',
-      blurb: 'Central-leader and open-center fruit trees. Start with apple.',
+      blurb: 'Central-leader apple, open-center peach, upright pear. Trees first.',
       plants: [
         {
           id: 'apple',
@@ -49,8 +64,19 @@
           species: 'Malus domestica',
           diagram: 'tree',
           lead: true,
+          habit: 'Central leader — one dominant vertical trunk with tiered scaffolds at wide angles.',
+          speciesNote:
+            'Apple fruits on spurs and short laterals that live for years. Prefer thinning cuts that open light without a watersprout flush; use heading sparingly to stiffen leaders and laterals. Train wide crotch angles early.',
           intro:
-            'A young central-leader apple with labeled cut points. Select a marker to learn how and why to cut, then switch to Advanced for physiology.',
+            'A young central-leader apple with labeled cut points. Thinning removes a limb at its origin; heading shortens a shoot above a bud. Select markers for how, why, when, and good vs bad looks—Advanced adds physiology.',
+          anatomyLabels: anatomy([
+            { id: 'leader', label: 'Leader', x: 210, y: 58 },
+            { id: 'scaffold', label: 'Scaffold', x: 95, y: 155 },
+            { id: 'lateral', label: 'Lateral', x: 300, y: 165 },
+            { id: 'spur', label: 'Spur', x: 145, y: 225 },
+            { id: 'crotch', label: 'Crotch', x: 255, y: 105 },
+            { id: 'watersprout', label: 'Watersprout', x: 220, y: 255 },
+          ]),
           cuts: [
             {
               id: 'heading-leader',
@@ -59,12 +85,15 @@
               x: 200,
               y: 48,
               simple: {
-                how: 'Shorten the central leader by about one-quarter to one-third of last year’s growth, cutting just above an outward-facing bud.',
-                why: 'Heading checks height, thickens the leader, and encourages well-spaced scaffold branches below the cut.',
+                how: 'Shorten the central leader by about one-quarter to one-third of last year’s growth, cutting just above an outward-facing bud at a slight angle.',
+                why: 'Heading checks height, thickens the leader, and invites well-spaced scaffolds below—without removing the whole leader (that would be a thinning cut).',
+                when: 'Late dormant season (late winter to bud swell), after the worst cold, before growth starts.',
+                goodLooksLike: 'A clean slanted cut ¼ inch above a live outward bud; stub gone; leader still clearly dominant.',
+                badLooksLike: 'Long stub above the bud, cut into the bud, flush tear of bark, or heading so hard the tree responds with a broom of watersprouts.',
               },
               advanced: physio(
                 'The intact apex produces auxin that reinforces apical dominance and keeps basal buds relatively quiescent. Carbohydrates flow preferentially toward the tip and nearby sinks.',
-                'Removing the apex collapses local auxin supply. Lateral buds break; remaining shoots claim more photoassimilate. Cambial activity near the cut rises as the wound compartmentalizes.',
+                'Removing the apex collapses local auxin supply (apical dominance breaks). Lateral buds break; remaining shoots claim more photoassimilate. Cambium near the cut rises as CODIT walls compartmentalize the wound.',
                 ['cornell-apple', 'pomology', 'umn-pruning']
               ),
             },
@@ -75,12 +104,15 @@
               x: 118,
               y: 130,
               simple: {
-                how: 'Remove an entire competing scaffold back to the trunk or a strong lateral, leaving a clean collar cut without stubs.',
-                why: 'Thinning opens the canopy for light and air, reduces rub and disease pressure, and keeps a few strong, well-angled limbs.',
+                how: 'Remove an entire competing scaffold back to the trunk collar or a strong lateral—do not tip it. Leave the branch collar; no stub.',
+                why: 'Thinning opens light and air without the vigorous re-sprout flush that heading the same limb would cause. Keeps a few strong, well-angled limbs.',
+                when: 'Dormant season preferred; light summer thinning of shaded wood is acceptable once the tree is trained.',
+                goodLooksLike: 'Smooth collar cut, no stub, remaining scaffolds spaced and at ~45–60° from the trunk.',
+                badLooksLike: 'Stub left on the trunk, flush cut that removes the collar, or tipping the scaffold (heading) instead of removing it at the origin.',
               },
               advanced: physio(
                 'Crowded scaffolds shade inner wood; shaded leaves export less carbohydrate, and fruiting spurs weaken. Pathogen-friendly humidity rises in dense interiors.',
-                'A collar-respecting thinning cut removes the competing sink without stimulating a flush of watersprouts the way a blunt heading cut would. Light and assimilation improve on remaining wood.',
+                'A collar-respecting thinning cut removes the competing sink without the hormonal imbalance of a blunt heading cut. Light and assimilation improve on remaining wood; watersprout pressure stays lower.',
                 ['cornell-apple', 'umn-pruning']
               ),
             },
@@ -91,12 +123,15 @@
               x: 286,
               y: 148,
               simple: {
-                how: 'Tip back a vigorous lateral just above an outward bud to shorten and stiffen the branch.',
-                why: 'Controlled heading builds sturdy fruiting wood while keeping the branch from racing past the leader.',
+                how: 'Tip back a vigorous lateral just above an outward bud to shorten and stiffen the branch—this is heading, not thinning.',
+                why: 'Controlled heading builds sturdy fruiting wood while keeping the branch from racing past the leader. Distinguish from thinning: you are shortening, not removing at the origin.',
+                when: 'Dormant season for structural work; avoid heavy late-summer heading that forces soft tips into winter.',
+                goodLooksLike: 'Cut above an outward bud; branch shorter and stockier; no torn bark.',
+                badLooksLike: 'Heading every shoot (creates a twiggy thicket), cutting below the bud, or leaving stubs that die back.',
               },
               advanced: physio(
                 'A long unheaded lateral keeps strong apical pull; lower buds stay suppressed and the limb may become whippy under crop load.',
-                'Heading redistributes auxin gradients along the remaining shoot. Several buds behind the cut push; the branch thickens as carbs are spent on wood rather than unchecked tip extension.',
+                'Heading redistributes auxin along the remaining shoot. Several buds behind the cut push; carbs go into wood thickening rather than unchecked tip extension.',
                 ['cornell-apple', 'pomology']
               ),
             },
@@ -107,8 +142,11 @@
               x: 152,
               y: 210,
               simple: {
-                how: 'Cut back a tired, shadowed spur cluster to a younger side shoot or remove the oldest spur unit entirely.',
-                why: 'Apple fruit quality declines on old, shaded spurs. Renewal keeps productive 2–4 year wood in the light.',
+                how: 'Cut back a tired, shadowed spur cluster to a younger side shoot, or remove the oldest spur unit entirely (thinning-style at the spur origin).',
+                why: 'Apple quality declines on old, shaded spurs. Renewal keeps productive 2–4 year wood in the light.',
+                when: 'Dormant season; you can also remove obviously dead spur wood anytime dry.',
+                goodLooksLike: 'Younger fruiting wood left in light; old “mouse-ear” spur clusters gone; canopy still balanced.',
+                badLooksLike: 'Stripping all spurs from a limb (crop loss), or leaving a forest of weak shaded stubs.',
               },
               advanced: physio(
                 'Aging spurs accumulate less starch, set smaller fruit, and shade themselves. Floral initiation suffers under low light.',
@@ -123,8 +161,11 @@
               x: 208,
               y: 268,
               simple: {
-                how: 'Cut the upright sucker flush at its origin on the scaffold or rootstock collar—do not leave a stub.',
+                how: 'Cut the upright sucker or watersprout flush at its origin on the scaffold or rootstock collar—no stub. Prefer tearing soft summer sprouts by hand when young.',
                 why: 'Suckers and watersprouts steal light and vigor, crowd the canopy, and rarely make good fruiting wood.',
+                when: 'Dormant cleanup plus rub/tear soft sprouts in late spring–early summer while still green.',
+                goodLooksLike: 'Origin clean; no stub; canopy without vertical “pipes” of soft wood.',
+                badLooksLike: 'Heading the sprout halfway (it forks into more sprouts), or leaving a stub that resprouts in a cluster.',
               },
               advanced: physio(
                 'Severe heading or rootstock vigor often triggers epicormic shoots with high auxin sensitivity and rapid vertical growth, diverting carbs from fruit.',
@@ -139,12 +180,15 @@
               x: 92,
               y: 188,
               simple: {
-                how: 'Saw out dead or diseased wood back to healthy tissue or the branch collar, sterilizing tools between suspect cuts.',
+                how: 'Saw out dead or diseased wood back to healthy tissue or the branch collar; sterilize tools between suspect cuts.',
                 why: 'Deadwood harbors pests and pathogens and blocks light without contributing canopy.',
+                when: 'Anytime dry weather; structural deadwood often cleared in dormancy. Do not prune into wet canker seasons when avoidable.',
+                goodLooksLike: 'Cut to live wood or proper collar; wound margins clean; tools wiped if disease was present.',
+                badLooksLike: 'Stub of dead wood left, cutting only partway into necrosis, or spreading canker with dirty tools.',
               },
               advanced: physio(
-                'Necrotic wood no longer compartmentalizes actively; pathogens can move through compromised barriers into living tissue.',
-                'Cutting to live wood lets the tree seal with callus. Timing in the dormant season limits infection windows for many stone- and pome-fruit cankers.',
+                'Necrotic wood no longer compartmentalizes actively (CODIT walls fail); pathogens can move through compromised barriers into living tissue.',
+                'Cutting to live wood lets the tree seal with callus. Dormant timing limits infection windows for many pome-fruit cankers.',
                 ['umn-pruning', 'cornell-apple']
               ),
             },
@@ -155,8 +199,11 @@
               x: 248,
               y: 112,
               simple: {
-                how: 'Remove the weaker of two limbs meeting at a sharp angle, cutting at the collar of the keeper branch.',
-                why: 'Included bark and narrow crotches split under crop or ice load. Early correction prevents later breakage.',
+                how: 'Remove the weaker of two limbs meeting at a sharp angle, cutting at the collar of the keeper—full thinning removal, not a heading tip.',
+                why: 'Included bark and narrow crotches split under crop or ice. Early correction prevents later breakage.',
+                when: 'Dormant season while wood is small; do not wait until scaffolds are large and the wound is massive.',
+                goodLooksLike: 'One well-angled scaffold remains (~45–60°); union shows continuous bark without a tight V of included bark.',
+                badLooksLike: 'Leaving both arms of a bark-included V, or topping both so you get two weak leaders.',
               },
               advanced: physio(
                 'Bark inclusion weakens the union; mechanical stress concentrates at the crotch rather than distributing through continuous wood grain.',
@@ -171,8 +218,11 @@
               x: 168,
               y: 168,
               simple: {
-                how: 'Take out the less useful of two rubbing or crossing limbs, preferably the one with poorer angle or shade position.',
+                how: 'Take out the less useful of two rubbing or crossing limbs at its origin (thinning), preferably the one with poorer angle or shade position.',
                 why: 'Rub wounds invite disease; crossing limbs waste framework space that should go to open, fruitful wood.',
+                when: 'Dormant season; remove rubbing pairs before bark is raw.',
+                goodLooksLike: 'Clear space between remaining limbs; no shiny rub scars grinding each winter.',
+                badLooksLike: 'Tipping both crossers (heading) so they still meet, or leaving the rub wound untreated while both stay.',
               },
               advanced: physio(
                 'Chronic abrasion damages bark and cambium, creating entry points and localized carbohydrate drain for wound repair.',
@@ -183,12 +233,177 @@
           ],
         },
         {
+          id: 'peach',
+          label: 'Peach',
+          species: 'Prunus persica',
+          diagram: 'tree-open',
+          habit: 'Open center (vase) — 3–5 scaffolds from a short trunk; no permanent central leader.',
+          speciesNote:
+            'Peach fruits on last season’s one-year shoots, not long-lived apple spurs. Annual heading and renewal of fruiting wood matter more than on apple. Open the vase for light; avoid fall pruning that invites canker.',
+          intro:
+            'Open-center peach: light into the bowl, fruiting on one-year wood. Heading renews fruiting shoots; thinning keeps scaffolds few and strong. Markers cover season timing and good vs bad cuts.',
+          anatomyLabels: anatomy([
+            { id: 'scaffold', label: 'Scaffold', x: 100, y: 140 },
+            { id: 'scaffold2', label: 'Scaffold', x: 300, y: 145 },
+            { id: 'fruiting', label: '1-yr wood', x: 160, y: 95 },
+            { id: 'center', label: 'Open center', x: 200, y: 160 },
+            { id: 'watersprout', label: 'Watersprout', x: 215, y: 250 },
+            { id: 'crotch', label: 'Crotch', x: 175, y: 200 },
+          ]),
+          cuts: [
+            {
+              id: 'heading-fruiting',
+              label: 'Heading — fruiting shoot',
+              kind: 'heading',
+              x: 155,
+              y: 88,
+              simple: {
+                how: 'Head back long one-year shoots by roughly one-third to one-half, cutting above an outward bud to keep fruiting wood stocky and reachable.',
+                why: 'Peach crops on last year’s wood. Heading shortens whippy shoots, thickens them, and encourages lateral fruiting shoots—unlike thinning, which would remove the shoot entirely.',
+                when: 'Late dormant / early spring before bloom in most Northeast/Midwest guides; never heavy fall cuts (canker risk).',
+                goodLooksLike: 'Shoots shortened to a manageable bowl; outward buds retained; vase still open in the middle.',
+                badLooksLike: 'Shearing into a hedge (too many heading cuts everywhere), fall heading into wet weather, or removing all one-year wood.',
+              },
+              advanced: physio(
+                'Peach flower buds form on one-year shoots; unheaded whips are sparsely fruitful at the tip and shade the vase interior.',
+                'Heading redistributes auxin and forces lateral breaks along the shoot, increasing fruitful nodes within the light-filled open center while capping tree size.',
+                ['cornell-peach', 'pomology', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'thinning-scaffold',
+              label: 'Thinning — extra scaffold',
+              kind: 'thinning',
+              x: 290,
+              y: 150,
+              simple: {
+                how: 'Remove an entire surplus scaffold at the trunk collar, leaving 3–5 well-spaced arms. Do not head it halfway.',
+                why: 'Too many scaffolds crowd the vase. Thinning at the origin opens the center permanently without a flush of sprouts from a headed stub.',
+                when: 'Dormant season while scaffolds are still small enough for modest wounds.',
+                goodLooksLike: 'Evenly spaced arms, open bowl you can see sky through, collar cuts healed cleanly.',
+                badLooksLike: 'Four scaffolds rising from one tight circle with included bark, or topped scaffolds that sprout a witch’s broom.',
+              },
+              advanced: physio(
+                'Extra scaffolds cast shade on fruiting wood hanging into the vase; humidity and brown-rot pressure rise.',
+                'Collar thinning removes sinks and shade without the epicormic flush typical of large heading cuts on peach.',
+                ['cornell-peach', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'renewal-hangers',
+              label: 'Renewal — low hangers',
+              kind: 'renewal',
+              x: 120,
+              y: 230,
+              simple: {
+                how: 'Cut worn, shaded hangers back to a vigorous upward/outward one-year shoot, or remove the weakest hangers at their origin.',
+                why: 'Peach needs constant renewal of fruiting wood; old drooping hangers fruit poorly and trail on the ground.',
+                when: 'Dormant pruning each year as part of open-center maintenance.',
+                goodLooksLike: 'Fruiting wood young, lifted into light, within spray and harvest reach.',
+                badLooksLike: 'A skirt of old shaded hangers on the soil, or stripping so hard only watersprouts remain.',
+              },
+              advanced: physio(
+                'Shaded hangers have low photosynthesis and weak flower-bud quality; carbs go to vegetative tips instead.',
+                'Renewal redirects assimilate into well-lit one-year wood that will carry next season’s crop.',
+                ['cornell-peach', 'pomology']
+              ),
+            },
+            {
+              id: 'sucker',
+              label: 'Remove watersprout',
+              kind: 'sucker',
+              x: 210,
+              y: 255,
+              simple: {
+                how: 'Remove upright watersprouts at the origin inside the vase; tear soft ones in summer when possible.',
+                why: 'Watersprouts shade fruiting wood and turn the open center into a chimney of soft growth.',
+                when: 'Dormant cleanup plus summer rub while shoots are soft.',
+                goodLooksLike: 'Clear open center; scaffolds carry fruiting laterals, not vertical pipes.',
+                badLooksLike: 'Heading sprouts at mid-height so they branch into denser shade.',
+              },
+              advanced: physio(
+                'Peach responds vigorously to hard cuts; lost apical control sends epicormic shoots into the vase.',
+                'Origin removal deletes the sink. Prefer thinning and moderate heading over severe tops that recreate sprout flushes.',
+                ['cornell-peach', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'deadwood',
+              label: 'Deadwood / canker wood',
+              kind: 'deadwood',
+              x: 95,
+              y: 175,
+              simple: {
+                how: 'Cut dead or cankered wood to healthy tissue well below the lesion; disinfect tools between cuts.',
+                why: 'Cytospora and related cankers persist in dead peach wood and girdle scaffolds if ignored.',
+                when: 'Dry weather; avoid autumn pruning. After wet spells, wait for a dry window.',
+                goodLooksLike: 'Lesions gone, cut in clean pale wood, tools sanitized, wound not left as a stub.',
+                badLooksLike: 'Cutting only the tip of a canker, pruning in cold wet fall, or spreading inoculum scaffold to scaffold.',
+              },
+              advanced: physio(
+                'Canker fungi colonize stressed or wounded bark; necrotic wood is a reservoir that can girdle living cambium.',
+                'Cutting to live wood and limiting autumn wounds reduces infection windows while CODIT walls try to seal the cut.',
+                ['cornell-peach', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'narrow-crotch',
+              label: 'Correct narrow crotch',
+              kind: 'structural',
+              x: 178,
+              y: 198,
+              simple: {
+                how: 'Remove the weaker arm of a tight V at the trunk while wood is young—full thinning cut at the collar.',
+                why: 'Peach wood is brittle; narrow crotches split under crop load more readily than on apple.',
+                when: 'First 2–4 dormant seasons of training; do not postpone.',
+                goodLooksLike: 'Wide scaffold angles from a short trunk; no bark-included Vs.',
+                badLooksLike: 'Multiple scaffolds from one height with tight angles and included bark.',
+              },
+              advanced: physio(
+                'Included bark prevents continuous wood grain across the union; peach’s relatively brittle wood fails under load.',
+                'Early thinning to wide angles builds mechanically sound scaffolds before wounds become large.',
+                ['cornell-peach', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'crossing',
+              label: 'Remove crossing wood',
+              kind: 'thinning',
+              x: 240,
+              y: 125,
+              simple: {
+                how: 'Thin out the poorer of two crossing shoots inside the vase at its origin.',
+                why: 'Crossing wood shades fruit and rubs bark in a crop that already needs excellent airflow against brown rot.',
+                when: 'Dormant season annually.',
+                goodLooksLike: 'Open lanes between scaffolds; fruiting shoots not rubbing.',
+                badLooksLike: 'A tangled bowl of crossing one-year wood tipped everywhere instead of thinned.',
+              },
+              advanced: physio(
+                'Rub and shade reduce effective leaf area and create microclimates for fruit rots.',
+                'Thinning restores light to one-year fruiting wood and cuts wound-repair drain from abrasion.',
+                ['cornell-peach', 'umn-pruning']
+              ),
+            },
+          ],
+        },
+        {
           id: 'pear',
           label: 'Pear',
           species: 'Pyrus communis',
-          diagram: 'tree',
+          diagram: 'tree-upright',
+          habit: 'Upright central leader with strong apical dominance; fruit largely on short spurs.',
+          speciesNote:
+            'European pear pushes narrow and upright; spurs carry much of the crop. Favor thinning of steep competitors and fire-blight sanitation. Spreading and selective heading help widen angles—avoid soft summer heading that invites blight.',
           intro:
-            'Pear shares apple’s central-leader logic but tends to grow more upright. Cuts emphasize angle and fire-blight vigilance.',
+            'Pear shares central-leader logic but grows more upright and fruits on spurs. Thin steep wood, protect spurs, and treat blighted tips as sanitation cuts. Advanced covers vigor and infection risk.',
+          anatomyLabels: anatomy([
+            { id: 'leader', label: 'Leader', x: 212, y: 55 },
+            { id: 'upright', label: 'Upright', x: 235, y: 130 },
+            { id: 'spur', label: 'Spur', x: 140, y: 200 },
+            { id: 'scaffold', label: 'Scaffold', x: 100, y: 160 },
+            { id: 'watersprout', label: 'Watersprout', x: 215, y: 250 },
+            { id: 'crotch', label: 'Narrow crotch', x: 250, y: 108 },
+          ]),
           cuts: [
             {
               id: 'heading-leader',
@@ -197,13 +412,16 @@
               x: 200,
               y: 52,
               simple: {
-                how: 'Tip the leader above an outward bud to keep height in check without flattening the tree.',
-                why: 'Pears push strongly upright; light heading maintains a manageable leader while inviting scaffolds.',
+                how: 'Lightly tip the leader above an outward bud—modest heading only. Do not flatten the tree with hard tops.',
+                why: 'Pears push strongly upright; light heading maintains a manageable leader and invites scaffolds without a blight-prone soft flush.',
+                when: 'Late dormant season. Avoid heavy heading during active fire-blight weather.',
+                goodLooksLike: 'Leader still dominant, slightly shortened; scaffolds starting below with wider angles.',
+                badLooksLike: 'Severe topping that forces a broom of soft shoots (blight magnets), or cutting in a blight outbreak.',
               },
               advanced: physio(
                 'Strong apical dominance keeps pears narrowly upright; basal laterals stay weak without intervention.',
-                'Heading plus selective spreading redirects vigor into wider angles and better light penetration.',
-                ['cornell-apple', 'pomology']
+                'Modest heading plus selective spreading redirects vigor into wider angles. Hard heading spikes soft growth that Erwinia favors.',
+                ['cornell-pear', 'pomology', 'cornell-apple']
               ),
             },
             {
@@ -213,13 +431,35 @@
               x: 230,
               y: 140,
               simple: {
-                how: 'Remove a steep upright back to the trunk or a flat lateral.',
-                why: 'Uprights shade the center and compete with the leader; flat wood fruits more reliably.',
+                how: 'Remove a steep upright back to the trunk or a flat lateral—full thinning at the origin, not a tip-heading.',
+                why: 'Uprights shade the center, compete with the leader, and stay vegetative. Flat wood fruits more reliably on pear.',
+                when: 'Dormant season; remove blighted uprights promptly in dry weather any time.',
+                goodLooksLike: 'Fewer vertical competitors; remaining wood flatter and spur-bearing in light.',
+                badLooksLike: 'Heading the upright mid-shoot so it forks into two uprights, or leaving a stub.',
               },
               advanced: physio(
-                'Vertical shoots monopolize auxin-driven vigor and shade fruiting spurs.',
-                'Thinning them leaves assimilate for spurs and reduces fire-blight-prone succulent tips.',
-                ['umn-pruning', 'cornell-apple']
+                'Vertical shoots monopolize auxin-driven vigor and shade fruiting spurs; soft tips are fire-blight targets.',
+                'Thinning them leaves assimilate for spurs and reduces the population of succulent tips without recreating a heading flush.',
+                ['cornell-pear', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'renewal-spur',
+              label: 'Renewal — tired spur wood',
+              kind: 'renewal',
+              x: 148,
+              y: 205,
+              simple: {
+                how: 'Thin or shorten aging, shaded spur clusters back to younger spur units or a fruitful lateral.',
+                why: 'Pear depends on spurs; exhausted shaded spurs set poorly. Renew like apple, but respect fire-blight hygiene.',
+                when: 'Dormant season on dry days; sterilize if blight was present last year.',
+                goodLooksLike: 'Spurs in light, not buried under uprights; mix of productive ages.',
+                badLooksLike: 'Stripping all spurs from a limb, or leaving blighted spur wood in place.',
+              },
+              advanced: physio(
+                'Spur longevity depends on light and carbohydrate supply; shade collapses floral initiation.',
+                'Renewal shifts sinks to younger spurs with higher photosynthetic support from nearby leaves.',
+                ['cornell-pear', 'pomology']
               ),
             },
             {
@@ -229,13 +469,16 @@
               x: 110,
               y: 175,
               simple: {
-                how: 'Cut blighted or dead tips well into healthy wood; disinfect tools between cuts.',
-                why: 'Fire blight moves in succulent tissue—prompt removal limits spread.',
+                how: 'Cut blighted or dead tips well into healthy wood (often 8–12 inches below visible symptom); disinfect tools between cuts.',
+                why: 'Fire blight moves in succulent tissue—prompt sanitation limits spread into scaffolds and the leader.',
+                when: 'As soon as symptoms show in dry weather; also clear deadwood in dormancy.',
+                goodLooksLike: 'Cut in clean wood below the canker streak; tools wiped; no shepherd’s-crook tip left.',
+                badLooksLike: 'Cutting only the black tip, working in rain, or skipping tool disinfection between trees.',
               },
               advanced: physio(
-                'Erwinia can travel in xylem of soft growth; stubs leave inoculum in place.',
-                'Cutting to healthy wood and avoiding heavy summer heading that forces soft regrowth lowers infection risk.',
-                ['umn-pruning']
+                'Erwinia amylovora can travel in xylem of soft growth; stubs leave inoculum in place and invite further invasion.',
+                'Cutting to healthy wood and avoiding heavy summer heading that forces soft regrowth lowers infection risk while the tree walls off the wound.',
+                ['cornell-pear', 'umn-pruning']
               ),
             },
             {
@@ -245,13 +488,54 @@
               x: 200,
               y: 260,
               simple: {
-                how: 'Strip upright watersprouts at the origin during dormant season.',
-                why: 'They crowd the canopy and rarely set quality fruit.',
+                how: 'Strip upright watersprouts at the origin during dormancy; rub soft ones in early summer.',
+                why: 'They crowd the canopy, shade spurs, and offer soft tips for blight.',
+                when: 'Dormant plus early summer rub.',
+                goodLooksLike: 'Clean scaffold surfaces; spurs visible in light.',
+                badLooksLike: 'Half-headed sprouts that branch into denser vertical thickets.',
               },
               advanced: physio(
-                'Epicormic sprouts follow lost apical control or over-pruning.',
-                'Removing them restores carb balance toward fruiting wood without recreating a heading flush.',
-                ['pomology', 'umn-pruning']
+                'Epicormic sprouts follow lost apical control or over-pruning; on pear they are also infection-prone.',
+                'Removing them restores carb balance toward fruiting spurs without recreating a heading flush.',
+                ['cornell-pear', 'pomology', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'narrow-crotch',
+              label: 'Correct narrow crotch',
+              kind: 'structural',
+              x: 248,
+              y: 112,
+              simple: {
+                how: 'Thin out the weaker of two steep limbs in a tight V; keep the better-angled arm.',
+                why: 'Pears already grow narrow—uncorrected crotches become split hazards under crop.',
+                when: 'Early training years, dormant season.',
+                goodLooksLike: 'Selected scaffolds with improved angles; leader clear.',
+                badLooksLike: 'Co-dominant steeples with included bark left for “later.”',
+              },
+              advanced: physio(
+                'Narrow unions with bark inclusion fail under uneven crop or wind load.',
+                'Early thinning concentrates growth into fewer, stronger attachments.',
+                ['cornell-pear', 'umn-pruning']
+              ),
+            },
+            {
+              id: 'crossing',
+              label: 'Remove crossing branch',
+              kind: 'thinning',
+              x: 170,
+              y: 165,
+              simple: {
+                how: 'Remove the less useful crosser at its origin; prefer keeping flat, spur-rich wood.',
+                why: 'Crossing uprights shade spurs and rub bark in an already dense habit.',
+                when: 'Dormant season.',
+                goodLooksLike: 'Open lanes to interior spurs; no chronic rub scars.',
+                badLooksLike: 'Tipping both crossers so they still meet next year.',
+              },
+              advanced: physio(
+                'Abrasion and shade reduce spur productivity and create entry wounds.',
+                'Thinning restores light to the spur system and ends the wound-repair drain.',
+                ['cornell-pear', 'umn-pruning']
               ),
             },
           ],
@@ -268,8 +552,15 @@
           label: 'Blueberry',
           species: 'Vaccinium corymbosum',
           diagram: 'berry',
+          habit: 'Crown of mixed-age canes; renew from the base.',
+          speciesNote: 'Keep a mix of cane ages; remove oldest wood at the ground rather than shearing the top.',
           intro:
             'Highbush blueberry is managed by cane renewal: keep a mix of ages and remove the oldest, weakest wood.',
+          anatomyLabels: anatomy([
+            { id: 'old-cane', label: 'Old cane', x: 115, y: 200 },
+            { id: 'new-cane', label: 'New cane', x: 250, y: 120 },
+            { id: 'crown', label: 'Crown', x: 200, y: 310 },
+          ]),
           cuts: [
             {
               id: 'renew-old-cane',
@@ -280,6 +571,9 @@
               simple: {
                 how: 'Cut one or two of the oldest, thickest canes at ground level each dormant season.',
                 why: 'Fruit quality and berry size decline on aging canes; renewal keeps productive 2–4 year wood.',
+                when: 'Late dormant season.',
+                goodLooksLike: 'Stool with mixed cane ages; oldest gray canes gone at the base.',
+                badLooksLike: 'Topping old canes halfway so weak twiggy regrowth remains.',
               },
               advanced: physio(
                 'Old canes carry more shaded laterals with lower photosynthetic rates and smaller fruit sinks.',
@@ -296,6 +590,9 @@
               simple: {
                 how: 'Remove spindly, inward, or crossing twigs back to a strong outward shoot.',
                 why: 'Opens the bush for spray coverage, light, and larger berries.',
+                when: 'Dormant season.',
+                goodLooksLike: 'Open bush, strong outward laterals, light into the center.',
+                badLooksLike: 'Shearing the exterior into a dense shell that shades the interior.',
               },
               advanced: physio(
                 'Dense twiggy interiors create low-light microclimates that suppress flower-bud set.',
@@ -311,7 +608,10 @@
               y: 70,
               simple: {
                 how: 'Optionally tip overly long whips to encourage branching—avoid heavy heading of mature bushes.',
-                why: 'Light tipping can stockier a lanky cane; hard heading reduces next year’s crop.',
+                why: 'Light tipping can stockier a lanky cane; hard heading removes next year’s crop buds.',
+                when: 'Dormant, sparingly.',
+                goodLooksLike: 'Only the lankiest whips tipped; most floral wood retained.',
+                badLooksLike: 'Hedging the whole bush and sacrificing flower buds.',
               },
               advanced: physio(
                 'Flower buds sit on last season’s laterals; severe heading removes crop potential.',
@@ -328,6 +628,9 @@
               simple: {
                 how: 'Saw out winter-killed or diseased canes to live tissue or the crown.',
                 why: 'Dead wood does not fruit and can harbor cane diseases.',
+                when: 'After budbreak clarifies live vs dead, or in dormancy when obvious.',
+                goodLooksLike: 'Only live canes remain; cuts at crown or into green wood.',
+                badLooksLike: 'Leaving dead tips that shade and host pathogens.',
               },
               advanced: physio(
                 'Necrotic canes no longer transport or compartmentalize; pathogens persist in dead tissue.',
@@ -342,8 +645,14 @@
           label: 'Raspberry',
           species: 'Rubus idaeus',
           diagram: 'berry',
+          habit: 'Biennial canes: primocanes then floricanes.',
+          speciesNote: 'Summer-bearing types fruit on second-year canes—remove spent floricanes after harvest.',
           intro:
             'Summer-bearing raspberries fruit on second-year canes. Remove spent floricanes after harvest; thin primocanes.',
+          anatomyLabels: anatomy([
+            { id: 'floricane', label: 'Floricane', x: 125, y: 210 },
+            { id: 'primocane', label: 'Primocane', x: 255, y: 140 },
+          ]),
           cuts: [
             {
               id: 'remove-floricane',
@@ -354,6 +663,9 @@
               simple: {
                 how: 'After fruiting, cut brown floricanes at ground level; leave green primocanes.',
                 why: 'Floricanes die after crop; removing them frees light and reduces disease carryover.',
+                when: 'Right after harvest through fall, or dormant if missed.',
+                goodLooksLike: 'Only primocanes (and retained fruiting canes on everbearers per system) left standing.',
+                badLooksLike: 'Leaving gray spent canes tangled through winter.',
               },
               advanced: physio(
                 'Spent floricanes are senescing sinks that shade next year’s primocanes.',
@@ -370,6 +682,9 @@
               simple: {
                 how: 'Keep about 4–6 strong primocanes per foot of row; cut extras at the soil line.',
                 why: 'Overcrowding shrinks berry size and invites cane disease.',
+                when: 'Early summer when canes are selectable, or dormant.',
+                goodLooksLike: 'Even spacing, strong canes, airflow through the row.',
+                badLooksLike: 'A solid wall of thin canes.',
               },
               advanced: physio(
                 'Excess canes compete for light and root-supplied nitrogen and carbs.',
@@ -385,7 +700,10 @@
               y: 60,
               simple: {
                 how: 'When primocanes exceed the trellis, tip them to encourage lateral fruiting branches.',
-                why: 'Tipping builds a productive fruiting framework within reach.',
+                why: 'Tipping builds a productive fruiting framework within reach (heading, not ground removal).',
+                when: 'Midsummer when height exceeds the top wire.',
+                goodLooksLike: 'Canes branched below the top wire with laterals forming.',
+                badLooksLike: 'Never tipping so canes flop, or tipping so late laterals stay immature.',
               },
               advanced: physio(
                 'Untipped tips keep apical dominance; few laterals form for next year’s crop.',
@@ -407,8 +725,15 @@
           label: 'Grape',
           species: 'Vitis spp.',
           diagram: 'vine',
+          habit: 'Cordon or cane system on a trunk; fruit on one-year wood.',
+          speciesNote: 'Balanced pruning leaves enough buds for crop without overcropping the vine.',
           intro:
             'A cordon-trained grape vine. Balanced pruning leaves enough buds for crop without overcropping the vine.',
+          anatomyLabels: anatomy([
+            { id: 'cordon', label: 'Cordon', x: 300, y: 148 },
+            { id: 'spur', label: 'Spur', x: 145, y: 130 },
+            { id: 'trunk', label: 'Trunk', x: 215, y: 250 },
+          ]),
           cuts: [
             {
               id: 'cane-select',
@@ -419,6 +744,9 @@
               simple: {
                 how: 'Keep a pencil-thick one-year cane with well-spaced buds; tie it along the wire.',
                 why: 'Fruit forms on shoots from last year’s cane. Good cane choice sets crop potential.',
+                when: 'Late dormant, before budburst.',
+                goodLooksLike: 'Pencil-thick cane, plump buds, tied without kinks.',
+                badLooksLike: 'Keeping fat bull canes or weak twiggy wood as your only fruiting units.',
               },
               advanced: physio(
                 'Bud fertility and cane starch reserves vary with light exposure the prior season.',
@@ -433,8 +761,11 @@
               x: 160,
               y: 150,
               simple: {
-                how: 'On spur systems, cut each spur back to two or three buds.',
+                how: 'On spur systems, cut each spur back to two or three buds (heading of the spur).',
                 why: 'Short spurs renew fruiting units close to the cordon and keep the vine compact.',
+                when: 'Late dormant.',
+                goodLooksLike: 'Short spurs evenly spaced on the cordon; bud count matched to vine vigor.',
+                badLooksLike: 'Long spurs left everywhere, guaranteeing overcrop.',
               },
               advanced: physio(
                 'Long unpruned canes overcrop; the vine cannot ripen a heavy crop and store reserves.',
@@ -451,6 +782,9 @@
               simple: {
                 how: 'Cut away last year’s fruited canes that you are not retaining as renewals.',
                 why: 'Clears the cordon so new canes or spurs have space and light.',
+                when: 'Late dormant with the rest of balancing cuts.',
+                goodLooksLike: 'Cordon readable; only retained spurs/canes remain.',
+                badLooksLike: 'A mop of old wood shading the fruiting zone.',
               },
               advanced: physio(
                 'Retained old wood shades renewal zones and hosts disease.',
@@ -467,6 +801,9 @@
               simple: {
                 how: 'Rub or cut suckers from the trunk below the cordon while soft.',
                 why: 'Trunk suckers waste vigor and clutter the training system.',
+                when: 'Late spring while soft; again as needed.',
+                goodLooksLike: 'Clean trunk from ground to cordon.',
+                badLooksLike: 'A thicket of trunk suckers competing with the canopy.',
               },
               advanced: physio(
                 'Basal suckers are strong sinks competing with the canopy for root-supplied resources.',
@@ -488,8 +825,14 @@
           label: 'Fig',
           species: 'Ficus carica',
           diagram: 'other',
+          habit: 'Open bush or multi-stem stool; fruit on new growth.',
+          speciesNote: 'In cold climates keep a compact bush for protection; open the center for light.',
           intro:
             'Fig pruning balances open structure with protection of fruiting wood. In cold climates, keep a manageable bush form.',
+          anatomyLabels: anatomy([
+            { id: 'center', label: 'Center', x: 200, y: 140 },
+            { id: 'shoot', label: 'New shoot', x: 260, y: 90 },
+          ]),
           cuts: [
             {
               id: 'open-center',
@@ -500,6 +843,9 @@
               simple: {
                 how: 'Remove inward-growing branches to keep a vase-shaped, light-filled bush.',
                 why: 'Figs fruit on new growth; light and airflow improve ripening and reduce disease.',
+                when: 'Late dormant / after frost risk clarity in cold zones.',
+                goodLooksLike: 'Open bowl, outward wood retained.',
+                badLooksLike: 'A shaded thicket in the middle of the stool.',
               },
               advanced: physio(
                 'Shaded interior shoots produce fewer and poorer-quality syconia.',
@@ -516,6 +862,9 @@
               simple: {
                 how: 'Tip overly tall shoots to keep the bush within reach and encourage branching.',
                 why: 'Manageable height makes harvest and winter protection easier.',
+                when: 'Dormant or early growth as needed.',
+                goodLooksLike: 'Compact height with branched fruiting surface.',
+                badLooksLike: 'Unchecked tall whips that freeze or shade everything below.',
               },
               advanced: physio(
                 'Unchecked tips keep apical dominance and sparse branching.',
@@ -532,6 +881,9 @@
               simple: {
                 how: 'After budbreak, cut winter-killed tips back to live green wood.',
                 why: 'Figs often die back in cold winters; cleaning dead tips invites strong replacement shoots.',
+                when: 'After budbreak clarifies the live line.',
+                goodLooksLike: 'Cuts in live wood; vigorous replacement shoots pushing.',
+                badLooksLike: 'Guess-cutting in deep dormancy and removing live wood unnecessarily.',
               },
               advanced: physio(
                 'Dead tips block vascular continuity; latent buds below wait for the signal to push.',
@@ -548,6 +900,9 @@
               simple: {
                 how: 'Dig or cut suckers arising from roots away from the main stool.',
                 why: 'Suckers sap vigor from the productive canopy.',
+                when: 'Whenever they appear, while young.',
+                goodLooksLike: 'Single trained stool without a thicket of root sprouts.',
+                badLooksLike: 'A colony of suckers stealing water and carbs.',
               },
               advanced: physio(
                 'Root suckers are autonomous sinks drawing from shared root reserves.',
@@ -562,8 +917,14 @@
           label: 'Currant',
           species: 'Ribes spp.',
           diagram: 'other',
+          habit: 'Stool of mixed-age canes; renew like blueberry.',
+          speciesNote: 'Best fruit on young wood—remove oldest canes at the base each year.',
           intro:
             'Currants fruit best on young wood. Maintain a stool of mixed-age canes much like blueberry renewal.',
+          anatomyLabels: anatomy([
+            { id: 'old', label: 'Old cane', x: 120, y: 220 },
+            { id: 'young', label: 'Young cane', x: 240, y: 140 },
+          ]),
           cuts: [
             {
               id: 'renew-cane',
@@ -574,6 +935,9 @@
               simple: {
                 how: 'Each year remove two or three of the oldest canes at the base.',
                 why: 'Keeps a productive mix of 1-, 2-, and 3-year wood.',
+                when: 'Dormant season.',
+                goodLooksLike: 'Mixed ages, open stool, oldest wood gone at ground level.',
+                badLooksLike: 'Only topping old canes so the base stays crowded.',
               },
               advanced: physio(
                 'Yield and berry size drop on wood older than about three years as shading increases.',
@@ -590,6 +954,9 @@
               simple: {
                 how: 'Take out weak or crossing stems from the middle of the stool.',
                 why: 'Airflow reduces mildew; light improves fruiting on remaining canes.',
+                when: 'Dormant season.',
+                goodLooksLike: 'Light and air through the stool.',
+                badLooksLike: 'A dense humid core that mildews.',
               },
               advanced: physio(
                 'Dense stools trap humidity favorable to powdery mildew and reduce light on fruiting laterals.',
@@ -606,6 +973,9 @@
               simple: {
                 how: 'Remove dead or broken canes entirely.',
                 why: 'Sanitation first—dead wood is not crop and may harbor pests.',
+                when: 'Anytime obvious; routinely in dormancy.',
+                goodLooksLike: 'Only sound canes remain.',
+                badLooksLike: 'Dead stubs left in the stool.',
               },
               advanced: physio(
                 'Dead canes are inoculum reservoirs and physical clutter.',

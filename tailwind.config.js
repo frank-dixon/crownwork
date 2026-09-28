@@ -1,31 +1,37 @@
-/** Crownwork — cool spectrum tokens aligned with frank-dixon.github.io hub */
+/** Crownwork — cream paper + turquoise (#0B8A8F), aligned with frank-dixon.github.io hub */
 module.exports = {
   content: ["./docs/**/*.{html,js}", "./src/js/**/*.js"],
   theme: {
     extend: {
       colors: {
-        void: "#050608",
-        bg: "#0A0C10",
-        raised: "#141820",
-        line: "#243041",
-        ink: "#E6EAF0",
-        lede: "#B7C0CE",
-        soft: "#A8B2C2",
-        mute: "#8B93A3",
+        // Paper / craft surfaces (never near-black)
+        void: "#FAF7F1",
+        bg: "#F5F0E8",
+        raised: "#FFFBF5",
+        line: "#DDD5C8",
+        // Ink
+        ink: "#1C1916",
+        lede: "#3F3A34",
+        soft: "#5A534A",
+        mute: "#7A7368",
+        // Turquoise accent (personal-site world)
         sea: {
-          DEFAULT: "#5FA8A0",
-          bright: "#7BC4BC",
-          dim: "#3A6B66",
+          DEFAULT: "#0B8A8F",
+          bright: "#0D9FA5",
+          dim: "#086F73",
         },
+        // Supporting action / craft
         action: {
-          DEFAULT: "#6B7FD7",
-          bright: "#8A9AE8",
-          dim: "#4A5BA8",
+          DEFAULT: "#0B8A8F",
+          bright: "#0D9FA5",
+          dim: "#086F73",
         },
+        // Warm cut / warning accents
         cut: {
-          DEFAULT: "#E8A87C",
+          DEFAULT: "#B86A3C",
           soft: "#C4784A",
         },
+        wood: "#6B5344",
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -52,6 +58,9 @@ module.exports = {
       },
       transitionTimingFunction: {
         crown: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+      },
+      boxShadow: {
+        paper: "0 1px 2px rgba(28, 25, 22, 0.04), 0 8px 24px rgba(28, 25, 22, 0.06)",
       },
     },
   },
